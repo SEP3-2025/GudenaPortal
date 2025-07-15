@@ -1,0 +1,11 @@
+{
+  "version": 2,
+  "dgSpecHash": "anuLxcD36VM=",
+  "success": true,
+  "projectFilePath": "C:\\Users\\razor\\RiderProjects\\GudenaPortal\\Gudena.Api\\Gudena.Api.csproj",
+  "expectedPackageFiles": [
+    "C:\\Users\\razor\\.nuget\\packages\\microsoft.aspnetcore.openapi\\9.0.2\\microsoft.aspnetcore.openapi.9.0.2.nupkg.sha512",
+    "C:\\Users\\razor\\.nuget\\packages\\microsoft.openapi\\1.6.17\\microsoft.openapi.1.6.17.nupkg.sha512"
+  ],
+  "logs": []
+}

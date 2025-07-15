@@ -1,0 +1,6 @@
+@Gudena.Api_HostAddress = http://localhost:5118
+
+GET {{Gudena.Api_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###

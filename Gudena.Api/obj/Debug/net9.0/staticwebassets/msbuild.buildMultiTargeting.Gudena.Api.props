@@ -1,0 +1,3 @@
+﻿<Project>
+  <Import Project="..\build\Gudena.Api.props" />
+</Project>
