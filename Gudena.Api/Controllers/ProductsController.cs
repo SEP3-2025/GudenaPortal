@@ -1,3 +1,4 @@
+using Gudena.Api.Services;
 using Gudena.Data;
 using Gudena.Data.Entities;
 using Microsoft.AspNetCore.Mvc;
@@ -9,26 +10,27 @@ namespace Gudena.Api.Controllers;
 [Route("api/[controller]")]
 public class ProductsController : ControllerBase
 {
-    private readonly AppDbContext _context;
+    private readonly IProductService _service;
 
-    public ProductsController(AppDbContext context)
+    public ProductsController(IProductService service)
     {
-        _context = context;
+        _service = service;
     }
 
     [HttpGet]
     public async Task<ActionResult<IEnumerable<Product>>> GetProducts()
     {
-        return await _context.Products.ToListAsync();
+        var products = await _service.GetAllProductsAsync();
+        return Ok(products);
     }
 
     [HttpGet("{id}")]
     public async Task<ActionResult<Product>> GetProduct(int id)
     {
-        var product = await _context.Products.FindAsync(id);
+        var product = await _service.GetProductByIdAsync(id);
         if (product == null)
             return NotFound();
 
-        return product;
+        return Ok(product);
     }
 }

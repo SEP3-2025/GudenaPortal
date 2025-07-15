@@ -1,0 +1,53 @@
+## Build results
+bin/
+obj/
+*.dll
+*.exe
+*.app
+*.log
+
+## User-specific files
+*.user
+*.suo
+*.userosscache
+*.sln.docstates
+
+## Rider
+.idea/
+*.sln.iml
+
+## VSCode
+.vscode/
+
+## ASP.NET
+wwwroot/
+project.lock.json
+project.fragment.lock.json
+
+## EF Core
+Migrations/*Designer.cs
+Migrations/*Snapshot.cs
+
+## Configuration
+appsettings.Development.json
+appsettings.*.local.json
+secrets.json
+
+## dotnet tools
+*.dotCover
+*.dotCover.html
+*.coverage
+*.coveragexml
+*.TestResult.xml
+TestResult.xml
+
+## Logs
+*.log
+logs/
+
+## OS artifacts
+.DS_Store
+Thumbs.db
+
+## Packages (optional, if using global/central package cache)
+packages/

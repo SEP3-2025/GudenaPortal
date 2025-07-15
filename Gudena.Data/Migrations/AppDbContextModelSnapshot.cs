@@ -252,6 +252,9 @@ namespace Gudena.Data.Migrations
 
                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
 
+                    b.Property<int?>("BasketId")
+                        .HasColumnType("integer");
+
                     b.Property<int>("CategoryId")
                         .HasColumnType("integer");
 
@@ -287,7 +290,12 @@ namespace Gudena.Data.Migrations
                         .IsRequired()
                         .HasColumnType("text");
 
+                    b.Property<bool>("isReturnable")
+                        .HasColumnType("boolean");
+
                     b.HasKey("Id");
+
+                    b.HasIndex("BasketId");
 
                     b.HasIndex("CategoryId");
 
@@ -515,6 +523,10 @@ namespace Gudena.Data.Migrations
 
             modelBuilder.Entity("Gudena.Data.Entities.Product", b =>
                 {
+                    b.HasOne("Gudena.Data.Entities.Basket", null)
+                        .WithMany("Products")
+                        .HasForeignKey("BasketId");
+
                     b.HasOne("Gudena.Data.Entities.Category", "Category")
                         .WithMany("Products")
                         .HasForeignKey("CategoryId")
@@ -585,6 +597,11 @@ namespace Gudena.Data.Migrations
                 {
                     b.Navigation("User")
                         .IsRequired();
+                });
+
+            modelBuilder.Entity("Gudena.Data.Entities.Basket", b =>
+                {
+                    b.Navigation("Products");
                 });
 
             modelBuilder.Entity("Gudena.Data.Entities.Category", b =>

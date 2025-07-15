@@ -11,6 +11,7 @@ public class Product
     public string Unit { get; set; }
     public bool IsDeleted { get; set; }
     public string ReferenceUrl { get; set; }
+    public bool isReturnable { get; set; }
 
     public int CategoryId { get; set; }
     public Category Category { get; set; }
