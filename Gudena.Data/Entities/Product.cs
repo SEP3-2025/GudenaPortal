@@ -16,8 +16,8 @@ public class Product
     public int CategoryId { get; set; }
     public Category Category { get; set; }
 
-    public int OwnerId { get; set; }
-    public User Owner { get; set; }
+    public string OwnerId { get; set; }
+    public ApplicationUser Owner { get; set; }
 
     public ICollection<Media> Media { get; set; }
     public ICollection<OrderItem> OrderItems { get; set; }

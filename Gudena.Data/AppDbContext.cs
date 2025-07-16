@@ -1,11 +1,11 @@
 using Gudena.Data.Entities;
+using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 
 namespace Gudena.Data;
 
-public class AppDbContext : DbContext
+public class AppDbContext : IdentityDbContext<ApplicationUser>
 {
-    public DbSet<User> Users { get; set; }
     public DbSet<AccountDetails> AccountDetails { get; set; }
     public DbSet<Basket> Baskets { get; set; }
     public DbSet<Category> Categories { get; set; }
@@ -26,6 +26,40 @@ public class AppDbContext : DbContext
     {
         base.OnModelCreating(modelBuilder);
         
-        // Add custom configurations here if needed.
+        // ApplicationUser to AccountDetails (one-to-one)
+        modelBuilder.Entity<ApplicationUser>()
+            .HasOne(u => u.AccountDetails)
+            .WithOne(ad => ad.ApplicationUser)
+            .HasForeignKey<AccountDetails>(ad => ad.ApplicationUserId)
+            .OnDelete(DeleteBehavior.Cascade);
+
+        // ApplicationUser to Basket (one-to-many)
+        modelBuilder.Entity<Basket>()
+            .HasOne(b => b.ApplicationUser)
+            .WithMany(u => u.Baskets)
+            .HasForeignKey(b => b.ApplicationUserId);
+
+        // ApplicationUser to Order (one-to-many)
+        modelBuilder.Entity<Order>()
+            .HasOne(o => o.ApplicationUser)
+            .WithMany(u => u.Orders)
+            .HasForeignKey(o => o.ApplicationUserId);
+
+        // ApplicationUser to Favourite (one-to-many)
+        modelBuilder.Entity<Favourite>()
+            .HasOne(f => f.ApplicationUser)
+            .WithMany(u => u.Favourites)
+            .HasForeignKey(f => f.ApplicationUserId);
+
+        // ApplicationUser to Product (one-to-many, owner relationship)
+        modelBuilder.Entity<Product>()
+            .HasOne(p => p.Owner)
+            .WithMany(u => u.Products)
+            .HasForeignKey(p => p.OwnerId);
+        
+        // Email uniqueness constraint
+        modelBuilder.Entity<ApplicationUser>()
+            .HasIndex(u => u.Email)
+            .IsUnique();
     }
 }

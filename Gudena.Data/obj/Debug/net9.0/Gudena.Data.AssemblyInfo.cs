@@ -13,7 +13,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("Gudena.Data")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+c47d70959ed8ed1583f004a8c3baef5ad23a35f6")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+fd8b159f72988334c67890f19179cae58970476a")]
 [assembly: System.Reflection.AssemblyProductAttribute("Gudena.Data")]
 [assembly: System.Reflection.AssemblyTitleAttribute("Gudena.Data")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]
