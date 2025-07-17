@@ -7,10 +7,10 @@ public class Order
     public string Status { get; set; }
     public string PaymentMethod { get; set; }
     public decimal TotalAmount { get; set; }
-    public int UserId { get; set; }
+    public string ApplicationUserId { get; set; }
     public int ShippingId { get; set; }
 
-    public User User { get; set; }
+    public ApplicationUser ApplicationUser { get; set; }
     public Shipping Shipping { get; set; }
     public ICollection<OrderItem> OrderItems { get; set; }
     public ICollection<Payment> Payments { get; set; }

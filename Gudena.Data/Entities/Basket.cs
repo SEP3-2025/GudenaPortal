@@ -1,10 +1,11 @@
-namespace Gudena.Data.Entities;
+using Gudena.Data.Entities;
 
 public class Basket
 {
     public int Id { get; set; }
-    public int UserId { get; set; }
-    public ICollection<Product> Products { get; set; }
 
-    public User User { get; set; }
+    public string ApplicationUserId { get; set; }
+    public ApplicationUser ApplicationUser { get; set; }
+
+    public ICollection<Product> Products { get; set; }
 }
