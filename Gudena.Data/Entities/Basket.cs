@@ -7,5 +7,5 @@ public class Basket
     public string ApplicationUserId { get; set; }
     public ApplicationUser ApplicationUser { get; set; }
 
-    public ICollection<Product> Products { get; set; }
+    public ICollection<BasketItem> BasketItems { get; set; }
 }
