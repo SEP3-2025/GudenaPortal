@@ -3,7 +3,7 @@ using System.Threading.Tasks;
 using Gudena.Api.Repositories;
 using Gudena.Data.Entities;
 
-namespace Gudena.Api.Services;
+namespace Gudena.Api.Services
 
 
 {
