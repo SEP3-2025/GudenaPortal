@@ -37,7 +37,7 @@ public class CategoryController : ControllerBase
     [HttpGet("parents")]
     public async Task<ActionResult<ICollection<Category>>> GetParentCategoriesAsync()
     {
-        var categories = _categoryService.GetAllParentCategoriesAsync();
+        var categories = _categoryService.GetRootCategoriesAsync();
         return Ok(categories);
     }
 

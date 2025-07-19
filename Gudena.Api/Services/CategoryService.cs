@@ -17,9 +17,9 @@ public class CategoryService : ICategoryService
         return await _categoryRepository.GetAllCategoriesAsync();
     }
 
-    public async Task<ICollection<Category>> GetAllParentCategoriesAsync()
+    public async Task<ICollection<Category>> GetRootCategoriesAsync()
     {
-        return await _categoryRepository.GetAllParentCategoriesAsync();
+        return await _categoryRepository.GetRootategoriesAsync();
     }
 
     public async Task<ICollection<Category>> GetAllChildCategoriesAsync(int parentCategoryId)

@@ -18,14 +18,14 @@ public class CategoryRepository : ICategoryRepository
         return await _context.Categories.ToListAsync();
     }
 
-    public async Task<ICollection<Category>> GetAllParentCategoriesAsync()
+    public async Task<ICollection<Category>> GetRootCategoriesAsync()
     {
-        return await _context.Categories.Where(c => true).ToListAsync(); // TODO: Modify model to add child categories
+        return await _context.Categories.Where(c => c.ParentCategory == null).ToListAsync();
     }
 
     public async Task<ICollection<Category>> GetAllChildCategoriesAsync(int parentCategoryId)
     {
-        return await _context.Categories.Where(c => true).ToListAsync(); // TODO: Modify model to add child categories
+        return await _context.Categories.Where(c => c.ParentCategoryId == parentCategoryId).ToListAsync();
     }
 
     public async Task<Category> GetCategoryByIdAsync(int id)

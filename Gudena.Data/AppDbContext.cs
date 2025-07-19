@@ -74,5 +74,11 @@ public class AppDbContext : IdentityDbContext<ApplicationUser>
             .HasOne(bi => bi.Basket)
             .WithMany(b => b.BasketItems)
             .HasForeignKey(bi => bi.BasketId);
+        
+        // Category inheritance (one to many)
+        modelBuilder.Entity<Category>()
+            .HasOne(c => c.ParentCategory)
+            .WithMany(c => c.Children)
+            .IsRequired(false);
     }
 }
