@@ -2,7 +2,7 @@ using Gudena.Api.Repositories;
 
 namespace Gudena.Api.Services;
 
-public class BasketService : IBasketRepository
+public class BasketService : IBasketService
 {
     private IBasketRepository _basketRepository;
 
