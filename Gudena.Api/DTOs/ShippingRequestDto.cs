@@ -2,6 +2,7 @@ using Gudena.Data.Entities;
 
 public class ShippingRequestDto
 {
-    public int OrderId { get; set; }
+    public int BasketId { get; set; }
     public string ShippingAddress { get; set; }
+    public string DeliveryOption { get; set; } = "Standard"; // Default to Standard shipping
 }

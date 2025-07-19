@@ -11,22 +11,22 @@ namespace Gudena.Api.Controllers
     public class PaymentController : ControllerBase
     {
         private readonly IPaymentService _paymentService;
-        private readonly IOrderService _orderService; // If you need to fetch order info
+        private readonly IBasketService _basketService;
 
-        public PaymentController(IPaymentService paymentService, IOrderService orderService)
+        public PaymentController(IPaymentService paymentService, IBasketService basketService)
         {
             _paymentService = paymentService;
-            _orderService = orderService;
+            _basketService = basketService;
         }
 
         [HttpPost]
         public async Task<ActionResult<Payment>> ProcessPayment([FromBody] PaymentRequestDto dto)
         {
-            var order = await _orderService.GetOrderByIdAsync(dto.OrderId);
-            if (order == null)
-                return NotFound("Order not found");
+            var basket = await _basketService.RetrieveBasketAsync(null, dto.BasketId);
+            if (basket == null)
+                return NotFound("Basket not found");
 
-            var payment = await _paymentService.ProcessPaymentAsync(order, dto.Amount, dto.PaymentMethod);
+            var payment = await _paymentService.ProcessPaymentAsync(basket, dto.Amount, dto.PaymentMethod);
             return Ok(payment);
         }
 
@@ -40,10 +40,10 @@ namespace Gudena.Api.Controllers
             return Ok(payment);
         }
 
-        [HttpGet("order/{orderId}")]
-        public async Task<ActionResult<IEnumerable<Payment>>> GetPaymentsByOrderId(int orderId)
+        [HttpGet("basket/{basketId}")]
+        public async Task<ActionResult<IEnumerable<Payment>>> GetPaymentsByBasketId(int basketId)
         {
-            var payments = await _paymentService.GetPaymentsByOrderIdAsync(orderId);
+            var payments = await _paymentService.GetPaymentsByBasketIdAsync(basketId);
             return Ok(payments);
         }
     }

@@ -3,6 +3,7 @@ using System.Threading.Tasks;
 using Gudena.Data;
 using Gudena.Data.Entities;
 using Microsoft.EntityFrameworkCore;
+using System.Linq;
 
 namespace Gudena.Api.Repositories
 {
@@ -25,6 +26,22 @@ namespace Gudena.Api.Repositories
             return await _context.Payments.FindAsync(id);
         }
 
+        // NEW: Get payment(s) by basket
+        public async Task<IEnumerable<Payment>> GetPaymentsByBasketIdAsync(int basketId)
+        {
+            return await _context.Payments
+                .Where(p => p.BasketId == basketId)
+                .ToListAsync();
+        }
+
+        public async Task<Payment?> GetLatestByBasketIdAsync(int basketId)
+        {
+            return await _context.Payments
+                .Where(p => p.BasketId == basketId)
+                .OrderByDescending(p => p.TransactionDate)
+                .FirstOrDefaultAsync();
+        }
+
         public async Task AddAsync(Payment payment)
         {
             _context.Payments.Add(payment);
@@ -45,13 +62,6 @@ namespace Gudena.Api.Repositories
                 _context.Payments.Remove(payment);
                 await _context.SaveChangesAsync();
             }
-        }
-
-        public async Task<IEnumerable<Payment>> GetPaymentsByOrderIdAsync(int orderId)
-        {
-            return await _context.Payments
-                .Where(p => p.OrderId == orderId)
-                .ToListAsync();
         }
     }
 }
