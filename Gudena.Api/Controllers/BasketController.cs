@@ -24,7 +24,7 @@ public class BasketController : ControllerBase
     public async Task<ActionResult<BasketItem>> GetBasketAsync(int id)
     {
         // Get userId
-        var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+        var userId = User.FindFirst("uid")?.Value;
         var basket = await _basketService.RetrieveBasketAsync(userId, id);
         if (basket == null)
             return NotFound(); // Shouldn't happen as a new basket is generated if none exists

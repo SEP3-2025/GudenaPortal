@@ -26,7 +26,7 @@ public class OrderController : ControllerBase
     public async Task<ActionResult<ICollection<Order>>> GetOrdersAsync()
     {
         // Get userId
-        var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+        var userId = User.FindFirst("uid")?.Value;
         var orders = await _orderService.GetOrdersAsync(userId);
         return Ok(orders);
     }
@@ -35,7 +35,7 @@ public class OrderController : ControllerBase
     public async Task<ActionResult<Order>> GetOrder(int id)
     {
         // Get userId
-        var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+        var userId = User.FindFirst("uid")?.Value;
         try
         {
             var order = await _orderService.GetOrderAsync(userId, id);
@@ -57,7 +57,7 @@ public class OrderController : ControllerBase
     public async Task<ActionResult<Order>> CreateOrder(OrderDto orderDto)
     {
         // Get user
-        var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+        var userId = User.FindFirst("uid")?.Value;
         var user = await _userManager.FindByIdAsync(userId);
         try
         {
@@ -85,7 +85,7 @@ public class OrderController : ControllerBase
     public async Task<ActionResult<Order>> UpdateOrder(OrderUpdateDto orderDto)
     {
         // Get userId
-        var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+        var userId = User.FindFirst("uid")?.Value;
         try
         {
             Order order = await _orderService.UpdateOrderAsync(orderDto, userId);

@@ -26,7 +26,10 @@ public class BasketRepository : IBasketRepository
             Basket basket = await _context.Baskets.SingleOrDefaultAsync(b => b.ApplicationUserId == userId);
             if (basket == null) // Basket doesn't exist
             {
-                basket = new Basket();
+                basket = new Basket()
+                {
+                    ApplicationUserId = userId
+                };
                 await _context.Baskets.AddAsync(basket);
                 await _context.SaveChangesAsync();
                 return basket;
