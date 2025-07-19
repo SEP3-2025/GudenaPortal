@@ -1,57 +1,64 @@
 using System;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 using Gudena.Api.Repositories;
 using Gudena.Data.Entities;
 
 namespace Gudena.Api.Services
-
-
 {
     public class PaymentService : IPaymentService
-{
-    private readonly IPaymentRepository _repository;
-
-    public PaymentService(IPaymentRepository repository)
     {
-        _repository = repository;
-    }
+        private readonly IPaymentRepository _repository;
 
-    // Processes a new payment for a basket
-    public async Task<Payment> ProcessPaymentAsync(Basket basket, decimal amount, string paymentMethod)
-    {
-        var payment = new Payment
+        public PaymentService(IPaymentRepository repository)
         {
-            BasketId = basket.Id,
-            Amount = amount,
-            PaymentMethod = paymentMethod,
-            PaymentStatus = "Completed", // or "Pending", etc.
-            TransactionDate = DateTime.UtcNow
-        };
-        await _repository.AddAsync(payment);
-        return payment;
-    }
+            _repository = repository;
+        }
 
-    // Retrieves a payment by its ID
-    public async Task<Payment?> GetPaymentByIdAsync(int id)
-    {
-        return await _repository.GetByIdAsync(id);
-    }
-
-    // Retrieve all payments for a basket
-    public async Task<IEnumerable<Payment>> GetPaymentsByBasketIdAsync(int basketId)
-    {
-        return await _repository.GetPaymentsByBasketIdAsync(basketId);
-    }
-
-    // (Optional) Update payment status
-    public async Task UpdatePaymentStatusAsync(int paymentId, string status)
-    {
-        var payment = await _repository.GetByIdAsync(paymentId);
-        if (payment != null)
+        public async Task<Payment> ProcessPaymentAsync(Basket basket, decimal amount, string paymentMethod)
         {
-            payment.PaymentStatus = status;
-            await _repository.UpdateAsync(payment);
+            var payment = new Payment
+            {
+                BasketId = basket.Id,
+                Amount = amount,
+                PaymentMethod = paymentMethod,
+                PaymentStatus = "Completed",
+                TransactionDate = DateTime.UtcNow
+            };
+            await _repository.AddAsync(payment);
+            return payment;
+        }
+
+        public async Task<Payment?> GetPaymentByIdAsync(int id)
+        {
+            return await _repository.GetByIdAsync(id);
+        }
+
+        public async Task<IEnumerable<Payment>> GetPaymentsByBasketIdAsync(int basketId)
+        {
+            return await _repository.GetPaymentsByBasketIdAsync(basketId);
+        }
+
+        public async Task UpdatePaymentStatusAsync(int paymentId, string status)
+        {
+            var payment = await _repository.GetByIdAsync(paymentId);
+            if (payment != null)
+            {
+                payment.PaymentStatus = status;
+                await _repository.UpdateAsync(payment);
+            }
+        }
+
+        // Interface-required methods
+        public async Task<IEnumerable<Payment>> GetAllAsync() => await _repository.GetAllAsync();
+        public async Task<Payment?> GetByIdAsync(int id) => await _repository.GetByIdAsync(id);
+        public async Task AddAsync(Payment payment) => await _repository.AddAsync(payment);
+        public async Task UpdateAsync(Payment payment) => await _repository.UpdateAsync(payment);
+        public async Task DeleteAsync(int id) => await _repository.DeleteAsync(id);
+
+        public async Task<Payment?> GetLatestByBasketIdAsync(int basketId)
+        {
+            return await _repository.GetLatestByBasketIdAsync(basketId);
         }
     }
-}
 }

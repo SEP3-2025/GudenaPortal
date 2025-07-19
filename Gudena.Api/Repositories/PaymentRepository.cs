@@ -26,7 +26,6 @@ namespace Gudena.Api.Repositories
             return await _context.Payments.FindAsync(id);
         }
 
-        // NEW: Get payment(s) by basket
         public async Task<IEnumerable<Payment>> GetPaymentsByBasketIdAsync(int basketId)
         {
             return await _context.Payments
