@@ -89,7 +89,7 @@ var app = builder.Build();
 using (var scope = app.Services.CreateScope())
 {
     var dbContext = scope.ServiceProvider.GetRequiredService<AppDbContext>();
-    // dbContext.Database.Migrate(); // Uncomment if you want automatic migrations
+    dbContext.Database.Migrate(); // Uncomment if you want automatic migrations
 }
 
 // Configure the middleware

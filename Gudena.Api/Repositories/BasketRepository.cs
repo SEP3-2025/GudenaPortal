@@ -1,3 +1,5 @@
+using System.Text.Json;
+using System.Text.Json.Serialization;
 using Gudena.Data;
 using Gudena.Data.Entities;
 using Microsoft.EntityFrameworkCore;
@@ -20,7 +22,9 @@ public class BasketRepository : IBasketRepository
     {
         if (basketId != -1) // Retrieve a specific basket
         {
-            return await _context.Baskets.SingleOrDefaultAsync(b => b.Id == basketId);
+            return await _context.Baskets
+                .Include(b => b.BasketItems)
+                .SingleOrDefaultAsync(b => b.Id == basketId);
         }
         else // Retrieve last unordered basket if it exists, otherwise create new basket
         {
@@ -45,8 +49,6 @@ public class BasketRepository : IBasketRepository
         Basket basket = await RetrieveBasketAsync(null, basketId);
         if (basket == null)
             throw new Exception("Basket not found");
-        if (basket.BasketItems == null)
-            basket.BasketItems = new List<BasketItem>();
         BasketItem? basketItem = basket.BasketItems.FirstOrDefault(bi => bi.ProductId == productId);
         if (basketItem == null) // Product isn't in the basket
         {
