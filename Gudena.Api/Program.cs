@@ -8,6 +8,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using System.Text;
+using System.Text.Json.Serialization;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -42,7 +43,8 @@ builder.Services.AddAuthentication(options =>
 });
 
 // Add services
-builder.Services.AddControllers();
+builder.Services.AddControllers()
+    .AddJsonOptions(j => j.JsonSerializerOptions.ReferenceHandler = ReferenceHandler.Preserve);
 builder.Services.AddScoped<IProductRepository, ProductRepository>();
 builder.Services.AddScoped<IProductService, ProductService>();
 builder.Services.AddScoped<IBasketRepository, BasketRepository>();

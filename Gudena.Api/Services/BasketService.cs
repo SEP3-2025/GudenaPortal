@@ -1,4 +1,5 @@
 using Gudena.Api.Repositories;
+using Gudena.Data.Entities;
 
 namespace Gudena.Api.Services;
 
@@ -11,7 +12,7 @@ public class BasketService : IBasketService
         _basketRepository = basketRepository;
     }
     
-    public async Task<Basket?> RetrieveBasketAsync(string userId, int? basketId)
+    public async Task<Basket?> RetrieveBasketAsync(string userId, int basketId)
     {
         return await _basketRepository.RetrieveBasketAsync(userId, basketId);
     }

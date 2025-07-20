@@ -14,10 +14,12 @@ namespace Gudena.Api.Controllers;
 public class BasketController : ControllerBase
 {
     private readonly IBasketService _basketService;
+    private readonly UserManager<ApplicationUser> _userManager;
     
-    public BasketController(IBasketService basketService)
+    public BasketController(IBasketService basketService, UserManager<ApplicationUser> userManager)
     {
         _basketService = basketService;
+        _userManager = userManager;
     }
 
     [HttpGet]

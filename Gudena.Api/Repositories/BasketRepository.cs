@@ -1,6 +1,7 @@
 using Gudena.Data;
 using Gudena.Data.Entities;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.IdentityModel.Tokens;
 
 namespace Gudena.Api.Repositories;
 
@@ -15,15 +16,15 @@ public class BasketRepository : IBasketRepository
         _productRepository = productRepository;
     }
     
-    public async Task<Basket?> RetrieveBasketAsync(string userId, int? basketId)
+    public async Task<Basket?> RetrieveBasketAsync(string userId, int basketId = -1)
     {
-        if (basketId.HasValue) // Retrieve a specific basket
+        if (basketId != -1) // Retrieve a specific basket
         {
-            return await _context.Baskets.SingleOrDefaultAsync(b => b.Id == basketId.Value);
+            return await _context.Baskets.SingleOrDefaultAsync(b => b.Id == basketId);
         }
         else // Retrieve last unordered basket if it exists, otherwise create new basket
         {
-            Basket basket = await _context.Baskets.SingleOrDefaultAsync(b => b.ApplicationUserId == userId);
+            Basket? basket = await _context.Baskets.SingleOrDefaultAsync(b => b.ApplicationUserId == userId);
             if (basket == null) // Basket doesn't exist
             {
                 basket = new Basket()
@@ -44,6 +45,8 @@ public class BasketRepository : IBasketRepository
         Basket basket = await RetrieveBasketAsync(null, basketId);
         if (basket == null)
             throw new Exception("Basket not found");
+        if (basket.BasketItems == null)
+            basket.BasketItems = new List<BasketItem>();
         BasketItem? basketItem = basket.BasketItems.FirstOrDefault(bi => bi.ProductId == productId);
         if (basketItem == null) // Product isn't in the basket
         {
@@ -65,6 +68,8 @@ public class BasketRepository : IBasketRepository
         Basket basket = await RetrieveBasketAsync(null, basketId);
         if (basket == null)
             throw new Exception("Basket not found");
+        if (basket.BasketItems == null)
+            basket.BasketItems = new List<BasketItem>();
         BasketItem? basketItem = basket.BasketItems.FirstOrDefault(bi => bi.ProductId == productId);
         if (basketItem == null)
             throw new Exception("BasketItem not found");
