@@ -34,11 +34,11 @@ public class AppDbContext : IdentityDbContext<ApplicationUser>
             .HasForeignKey<AccountDetails>(ad => ad.ApplicationUserId)
             .OnDelete(DeleteBehavior.Cascade);
 
-        // ApplicationUser to Basket (one-to-many)
+        // ApplicationUser to Basket (one-to-one)
         modelBuilder.Entity<Basket>()
             .HasOne(b => b.ApplicationUser)
-            .WithMany(u => u.Baskets)
-            .HasForeignKey(b => b.ApplicationUserId);
+            .WithOne(u => u.Basket)
+            .HasForeignKey<Basket>(b => b.ApplicationUserId);
 
         // ApplicationUser to Order (one-to-many)
         modelBuilder.Entity<Order>()
