@@ -18,6 +18,7 @@ public class AppDbContext : IdentityDbContext<ApplicationUser>
     public DbSet<Payment> Payments { get; set; }
     public DbSet<WarrantyClaim> WarrantyClaims { get; set; }
     public DbSet<ProductReturn> ProductReturns { get; set; }
+    public DbSet<BasketItem> BasketItems { get; set; }
 
     public AppDbContext(DbContextOptions<AppDbContext> options)
         : base(options) { }
@@ -33,11 +34,11 @@ public class AppDbContext : IdentityDbContext<ApplicationUser>
             .HasForeignKey<AccountDetails>(ad => ad.ApplicationUserId)
             .OnDelete(DeleteBehavior.Cascade);
 
-        // ApplicationUser to Basket (one-to-many)
+        // ApplicationUser to Basket (one-to-one)
         modelBuilder.Entity<Basket>()
             .HasOne(b => b.ApplicationUser)
-            .WithMany(u => u.Baskets)
-            .HasForeignKey(b => b.ApplicationUserId);
+            .WithOne(u => u.Basket)
+            .HasForeignKey<Basket>(b => b.ApplicationUserId);
 
         // ApplicationUser to Order (one-to-many)
         modelBuilder.Entity<Order>()
@@ -61,5 +62,23 @@ public class AppDbContext : IdentityDbContext<ApplicationUser>
         modelBuilder.Entity<ApplicationUser>()
             .HasIndex(u => u.Email)
             .IsUnique();
+        
+        // Basket Item to Product (one to many)
+        modelBuilder.Entity<BasketItem>()
+            .HasOne(bi => bi.Product)
+            .WithMany()
+            .HasForeignKey(bi => bi.ProductId);
+        
+        // Basket Item to Basket (one to many)
+        modelBuilder.Entity<BasketItem>()
+            .HasOne(bi => bi.Basket)
+            .WithMany(b => b.BasketItems)
+            .HasForeignKey(bi => bi.BasketId);
+        
+        // Category inheritance (one to many)
+        modelBuilder.Entity<Category>()
+            .HasOne(c => c.ParentCategory)
+            .WithMany(c => c.Children)
+            .IsRequired(false);
     }
 }

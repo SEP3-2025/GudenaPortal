@@ -1,3 +1,5 @@
+using System.Text.Json.Serialization;
+
 namespace Gudena.Data.Entities;
 
 public class Order
@@ -9,7 +11,7 @@ public class Order
     public decimal TotalAmount { get; set; }
     public string ApplicationUserId { get; set; }
     public int ShippingId { get; set; }
-
+    [JsonIgnore]
     public ApplicationUser ApplicationUser { get; set; }
     public Shipping Shipping { get; set; }
     public ICollection<OrderItem> OrderItems { get; set; }
