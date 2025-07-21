@@ -8,6 +8,5 @@ public class Basket
     public string ApplicationUserId { get; set; }
     [JsonIgnore]
     public ApplicationUser ApplicationUser { get; set; }
-
     public ICollection<BasketItem> BasketItems { get; set; }
 }

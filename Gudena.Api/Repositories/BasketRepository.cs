@@ -24,11 +24,15 @@ public class BasketRepository : IBasketRepository
         {
             return await _context.Baskets
                 .Include(b => b.BasketItems)
+                .ThenInclude(ci => ci.Product)
                 .SingleOrDefaultAsync(b => b.Id == basketId);
         }
         else // Retrieve last unordered basket if it exists, otherwise create new basket
         {
-            Basket? basket = await _context.Baskets.SingleOrDefaultAsync(b => b.ApplicationUserId == userId);
+            Basket? basket = await _context.Baskets
+                .Include(c => c.BasketItems)
+                .ThenInclude(ci => ci.Product)
+                .SingleOrDefaultAsync(b => b.ApplicationUserId == userId);
             if (basket == null) // Basket doesn't exist
             {
                 basket = new Basket()
