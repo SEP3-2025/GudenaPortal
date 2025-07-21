@@ -107,4 +107,31 @@ public class OrderController : ControllerBase
             return BadRequest();
         }
     }
+
+    [HttpDelete]
+    public async Task<IActionResult> CancelOrder(int id)
+    {
+        // Get userId
+        var userId = User.FindFirst("uid")?.Value;
+        try
+        {
+            await _orderService.CancelOrderAsync(userId, id);
+            return Ok();
+        }
+        catch (FileNotFoundException e)
+        {
+            Console.WriteLine($"Requested order not found: {e}");
+            return NotFound();
+        }
+        catch (UnauthorizedAccessException e)
+        {
+            Console.WriteLine($"Requested order {id} is not owned by this user {userId}: {e}");
+            return Unauthorized();
+        }
+        catch (AccessViolationException e)
+        {
+            Console.WriteLine($"Order cannot be cancelled as it has been processed: {e}");
+            return Problem();
+        }
+    }
 }

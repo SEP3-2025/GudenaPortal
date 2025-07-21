@@ -18,7 +18,11 @@ public class OrderRepository : IOrderRepository
     
     public async Task<Order> GetOrderAsync(string userId, int orderId)
     {
-        Order? order = await _context.Orders.FirstOrDefaultAsync(o => o.Id == orderId);
+        Order? order = await _context.Orders
+            .Include(o => o.Payments)
+            .Include(o => o.Shipping)
+            .Include(o => o.OrderItems)
+            .FirstOrDefaultAsync(o => o.Id == orderId);
         if (order == null)
             throw new FileNotFoundException("Order not found", orderId.ToString()); // TODO: Custom exception
         else if (order.ApplicationUserId != userId)
@@ -28,7 +32,11 @@ public class OrderRepository : IOrderRepository
 
     public async Task<ICollection<Order>> GetOrdersAsync(string userId)
     {
-        var orders = await _context.Orders.Where(o => o.ApplicationUserId == userId).ToListAsync();
+        var orders = await _context.Orders
+            .Include(o => o.Payments)
+            .Include(o => o.Shipping)
+            .Include(o => o.OrderItems)
+            .Where(o => o.ApplicationUserId == userId).ToListAsync();
         return orders;
     }
 
@@ -53,7 +61,8 @@ public class OrderRepository : IOrderRepository
             PaymentMethod = "Test Payment", // TODO: Modify once merged with payment logic
             TotalAmount = orderDto.Total,
             ApplicationUserId = orderDto.UserId,
-            ShippingId = orderDto.ShippingId,
+            //ShippingId = orderDto.ShippingId,
+            Shipping = new Shipping() { DeliveryOption = "Test Delivery", ShippingAddress = "Test address", ShippingNumbers = "SHIP192933" },
             // TODO: Add paymentId once merged with payment logic
             OrderItems = orderItems,
             ApplicationUser = user
