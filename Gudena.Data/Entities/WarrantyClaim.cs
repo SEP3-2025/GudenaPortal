@@ -7,8 +7,8 @@ public class WarrantyClaim
     public string Status { get; set; }
     public string Reason { get; set; }
     public int ProductId { get; set; }
-    public int ShippingId { get; set; }
+    public int OrderItemId { get; set; }
 
     public Product Product { get; set; }
-    public Shipping Shipping { get; set; }
+    public OrderItem OrderItem { get; set; }
 }

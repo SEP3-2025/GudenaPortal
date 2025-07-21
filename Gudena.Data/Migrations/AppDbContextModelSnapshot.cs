@@ -58,7 +58,7 @@ namespace Gudena.Data.Migrations
                     b.HasIndex("ApplicationUserId")
                         .IsUnique();
 
-                    b.ToTable("AccountDetails", (string)null);
+                    b.ToTable("AccountDetails");
                 });
 
             modelBuilder.Entity("Basket", b =>
@@ -78,7 +78,7 @@ namespace Gudena.Data.Migrations
                     b.HasIndex("ApplicationUserId")
                         .IsUnique();
 
-                    b.ToTable("Baskets", (string)null);
+                    b.ToTable("Baskets");
                 });
 
             modelBuilder.Entity("Gudena.Data.Entities.ApplicationUser", b =>
@@ -178,7 +178,7 @@ namespace Gudena.Data.Migrations
 
                     b.HasIndex("ProductId");
 
-                    b.ToTable("BasketItems", (string)null);
+                    b.ToTable("BasketItems");
                 });
 
             modelBuilder.Entity("Gudena.Data.Entities.Category", b =>
@@ -208,7 +208,7 @@ namespace Gudena.Data.Migrations
 
                     b.HasIndex("ParentCategoryId");
 
-                    b.ToTable("Categories", (string)null);
+                    b.ToTable("Categories");
                 });
 
             modelBuilder.Entity("Gudena.Data.Entities.Favourite", b =>
@@ -235,7 +235,7 @@ namespace Gudena.Data.Migrations
 
                     b.HasIndex("ProductId");
 
-                    b.ToTable("Favourites", (string)null);
+                    b.ToTable("Favourites");
                 });
 
             modelBuilder.Entity("Gudena.Data.Entities.Media", b =>
@@ -257,7 +257,7 @@ namespace Gudena.Data.Migrations
 
                     b.HasIndex("ProductId");
 
-                    b.ToTable("Media", (string)null);
+                    b.ToTable("Media");
                 });
 
             modelBuilder.Entity("Gudena.Data.Entities.Order", b =>
@@ -295,7 +295,7 @@ namespace Gudena.Data.Migrations
 
                     b.HasIndex("ShippingId");
 
-                    b.ToTable("Orders", (string)null);
+                    b.ToTable("Orders");
                 });
 
             modelBuilder.Entity("Gudena.Data.Entities.OrderItem", b =>
@@ -324,7 +324,7 @@ namespace Gudena.Data.Migrations
 
                     b.HasIndex("ProductId");
 
-                    b.ToTable("OrderItems", (string)null);
+                    b.ToTable("OrderItems");
                 });
 
             modelBuilder.Entity("Gudena.Data.Entities.Payment", b =>
@@ -356,7 +356,7 @@ namespace Gudena.Data.Migrations
 
                     b.HasIndex("OrderId");
 
-                    b.ToTable("Payments", (string)null);
+                    b.ToTable("Payments");
                 });
 
             modelBuilder.Entity("Gudena.Data.Entities.Product", b =>
@@ -412,7 +412,7 @@ namespace Gudena.Data.Migrations
 
                     b.HasIndex("OwnerId");
 
-                    b.ToTable("Products", (string)null);
+                    b.ToTable("Products");
                 });
 
             modelBuilder.Entity("Gudena.Data.Entities.ProductReturn", b =>
@@ -422,6 +422,9 @@ namespace Gudena.Data.Migrations
                         .HasColumnType("integer");
 
                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<int>("OrderItemId")
+                        .HasColumnType("integer");
 
                     b.Property<int>("ProductId")
                         .HasColumnType("integer");
@@ -433,20 +436,18 @@ namespace Gudena.Data.Migrations
                     b.Property<DateTime>("RequestDate")
                         .HasColumnType("timestamp with time zone");
 
-                    b.Property<int>("ShippingId")
-                        .HasColumnType("integer");
-
                     b.Property<string>("Status")
                         .IsRequired()
                         .HasColumnType("text");
 
                     b.HasKey("Id");
 
+                    b.HasIndex("OrderItemId")
+                        .IsUnique();
+
                     b.HasIndex("ProductId");
 
-                    b.HasIndex("ShippingId");
-
-                    b.ToTable("ProductReturns", (string)null);
+                    b.ToTable("ProductReturns");
                 });
 
             modelBuilder.Entity("Gudena.Data.Entities.Shipping", b =>
@@ -461,6 +462,9 @@ namespace Gudena.Data.Migrations
                         .IsRequired()
                         .HasColumnType("text");
 
+                    b.Property<int>("OrderItemId")
+                        .HasColumnType("integer");
+
                     b.Property<string>("ShippingAddress")
                         .IsRequired()
                         .HasColumnType("text");
@@ -474,7 +478,10 @@ namespace Gudena.Data.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Shippings", (string)null);
+                    b.HasIndex("OrderItemId")
+                        .IsUnique();
+
+                    b.ToTable("Shippings");
                 });
 
             modelBuilder.Entity("Gudena.Data.Entities.WarrantyClaim", b =>
@@ -488,6 +495,9 @@ namespace Gudena.Data.Migrations
                     b.Property<DateTime>("ClaimDate")
                         .HasColumnType("timestamp with time zone");
 
+                    b.Property<int>("OrderItemId")
+                        .HasColumnType("integer");
+
                     b.Property<int>("ProductId")
                         .HasColumnType("integer");
 
@@ -495,20 +505,18 @@ namespace Gudena.Data.Migrations
                         .IsRequired()
                         .HasColumnType("text");
 
-                    b.Property<int>("ShippingId")
-                        .HasColumnType("integer");
-
                     b.Property<string>("Status")
                         .IsRequired()
                         .HasColumnType("text");
 
                     b.HasKey("Id");
 
+                    b.HasIndex("OrderItemId")
+                        .IsUnique();
+
                     b.HasIndex("ProductId");
 
-                    b.HasIndex("ShippingId");
-
-                    b.ToTable("WarrantyClaims", (string)null);
+                    b.ToTable("WarrantyClaims");
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRole", b =>
@@ -732,7 +740,7 @@ namespace Gudena.Data.Migrations
                         .IsRequired();
 
                     b.HasOne("Gudena.Data.Entities.Shipping", "Shipping")
-                        .WithMany("Orders")
+                        .WithMany()
                         .HasForeignKey("ShippingId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
@@ -793,40 +801,51 @@ namespace Gudena.Data.Migrations
 
             modelBuilder.Entity("Gudena.Data.Entities.ProductReturn", b =>
                 {
+                    b.HasOne("Gudena.Data.Entities.OrderItem", "OrderItem")
+                        .WithOne("ProductReturn")
+                        .HasForeignKey("Gudena.Data.Entities.ProductReturn", "OrderItemId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
                     b.HasOne("Gudena.Data.Entities.Product", "Product")
                         .WithMany("ProductReturns")
                         .HasForeignKey("ProductId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("Gudena.Data.Entities.Shipping", "Shipping")
-                        .WithMany("ProductReturns")
-                        .HasForeignKey("ShippingId")
+                    b.Navigation("OrderItem");
+
+                    b.Navigation("Product");
+                });
+
+            modelBuilder.Entity("Gudena.Data.Entities.Shipping", b =>
+                {
+                    b.HasOne("Gudena.Data.Entities.OrderItem", "OrderItem")
+                        .WithOne("Shipping")
+                        .HasForeignKey("Gudena.Data.Entities.Shipping", "OrderItemId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.Navigation("Product");
-
-                    b.Navigation("Shipping");
+                    b.Navigation("OrderItem");
                 });
 
             modelBuilder.Entity("Gudena.Data.Entities.WarrantyClaim", b =>
                 {
+                    b.HasOne("Gudena.Data.Entities.OrderItem", "OrderItem")
+                        .WithOne("WarrantyClaim")
+                        .HasForeignKey("Gudena.Data.Entities.WarrantyClaim", "OrderItemId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
                     b.HasOne("Gudena.Data.Entities.Product", "Product")
                         .WithMany("WarrantyClaims")
                         .HasForeignKey("ProductId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("Gudena.Data.Entities.Shipping", "Shipping")
-                        .WithMany("WarrantyClaims")
-                        .HasForeignKey("ShippingId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                    b.Navigation("OrderItem");
 
                     b.Navigation("Product");
-
-                    b.Navigation("Shipping");
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<string>", b =>
@@ -914,6 +933,18 @@ namespace Gudena.Data.Migrations
                     b.Navigation("Payments");
                 });
 
+            modelBuilder.Entity("Gudena.Data.Entities.OrderItem", b =>
+                {
+                    b.Navigation("ProductReturn")
+                        .IsRequired();
+
+                    b.Navigation("Shipping")
+                        .IsRequired();
+
+                    b.Navigation("WarrantyClaim")
+                        .IsRequired();
+                });
+
             modelBuilder.Entity("Gudena.Data.Entities.Product", b =>
                 {
                     b.Navigation("Favourites");
@@ -921,15 +952,6 @@ namespace Gudena.Data.Migrations
                     b.Navigation("Media");
 
                     b.Navigation("OrderItems");
-
-                    b.Navigation("ProductReturns");
-
-                    b.Navigation("WarrantyClaims");
-                });
-
-            modelBuilder.Entity("Gudena.Data.Entities.Shipping", b =>
-                {
-                    b.Navigation("Orders");
 
                     b.Navigation("ProductReturns");
 

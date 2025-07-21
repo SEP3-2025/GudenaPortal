@@ -10,4 +10,8 @@ public class OrderItem
 
     public Order Order { get; set; }
     public Product Product { get; set; }
+
+    public Shipping Shipping { get; set; }
+    public WarrantyClaim WarrantyClaim { get; set; }
+    public ProductReturn ProductReturn { get; set; }
 }
