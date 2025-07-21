@@ -7,7 +7,7 @@ public class Payment
     public string PaymentStatus { get; set; }
     public DateTime TransactionDate { get; set; }
     public decimal Amount { get; set; }
-    public int OrderId { get; set; }
 
-    public Order Order { get; set; }
+    public int BasketId { get; set; }
+    public Basket Basket { get; set; }
 }

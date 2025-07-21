@@ -1,36 +1,44 @@
 using Gudena.Api.Services;
 using Gudena.Data.Entities;
+using Gudena.Api.DTOs;
 using Microsoft.AspNetCore.Mvc;
+using System.Threading.Tasks;
 
-namespace Gudena.Api.Controllers;
-
-[ApiController]
-[Route("api/[controller]")]
-public class ShippingController : ControllerBase
+namespace Gudena.Api.Controllers
 {
-    private readonly IShippingService _service;
-
-    public ShippingController(IShippingService service)
+    [ApiController]
+    [Route("api/[controller]")]
+    public class ShippingController : ControllerBase
     {
-        _service = service;
-    }
+        private readonly IShippingService _service;
+        private readonly IBasketService _basketService;
 
-   [HttpPost("calculate")]
-    public async Task<ActionResult<Shipping>> CalculateShipping([FromBody] ShippingRequestDto dto)
-    {
-    // Fetch the real order from the DB using the ID
-    var order = await _orderService.GetOrderByIdAsync(dto.OrderId); //I need an order service to fetch the order
-    if (order == null)
-        return NotFound("Order not found");
+        public ShippingController(IShippingService service, IBasketService basketService)
+        {
+            _service = service;
+            _basketService = basketService;
+        }
 
-    var shipping = await _service.CalculateShippingAsync(order, dto.ShippingAddress);
-    return Ok(shipping);
-    }   
+        [HttpPost("calculate")]
+        public async Task<ActionResult<Shipping>> CalculateShipping([FromBody] ShippingRequestDto dto)
+        {
+            var basket = await _basketService.RetrieveBasketAsync(null, dto.BasketId);
+            if (basket == null)
+                return NotFound("Basket not found");
 
-    [HttpGet("{id}/status")]
-    public async Task<ActionResult<string>> GetStatus(int id)
-    {
-        var status = await _service.GetShipmentStatusAsync(id);
-        return Ok(status);
+            var shipping = await _service.CalculateShippingAsync(
+                basket,
+                dto.ShippingAddress,
+                dto.DeliveryOption ?? "Standard" // default to "Standard" if not set
+            );
+            return Ok(shipping);
+        }
+
+        [HttpGet("{id}/status")]
+        public async Task<ActionResult<string>> GetStatus(int id)
+        {
+            var status = await _service.GetShipmentStatusAsync(id);
+            return Ok(status);
+        }
     }
 }

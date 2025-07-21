@@ -11,6 +11,7 @@ namespace Gudena.Api.Repositories
         Task AddAsync(Payment payment);
         Task UpdateAsync(Payment payment);
         Task DeleteAsync(int id);
-        Task<IEnumerable<Payment>> GetPaymentsByOrderIdAsync(int orderId);
+        Task<IEnumerable<Payment>> GetPaymentsByBasketIdAsync(int basketId);
+        Task<Payment?> GetLatestByBasketIdAsync(int basketId);
     }
 }

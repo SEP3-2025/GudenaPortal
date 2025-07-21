@@ -1,4 +1,5 @@
 using System;
+using System.Linq;
 using System.Threading.Tasks;
 using Gudena.Api.Repositories;
 using Gudena.Data.Entities;
@@ -14,57 +15,39 @@ namespace Gudena.Api.Services
             _repository = repository;
         }
 
-        // Example: simple distance calculation (mocked!)
         private double CalculateDistanceKm(string origin, string destination)
         {
-            // In production, use real geocoding and Haversine formula!
-            // Here, just simulate:
             if (origin == destination) return 1;
-            return new Random().Next(5, 501); // random 5-500 km
+            return new Random().Next(5, 501); // need GoogleMaps API to calculate distance so put random 5-500 km
         }
 
-        public async Task<Shipping> CalculateShippingAsync(Order order, string shippingAddress)
+        public async Task<Shipping> CalculateShippingAsync(
+            Basket basket, 
+            string shippingAddress, 
+            string deliveryOption = "Standard")
         {
-            // Assume warehouse address is hardcoded for demo
-            string warehouseAddress = "Gudena Warehouse, Aarhus";
+            string warehouseAddress = "Gudena Warehouse, Horsens";
             double distance = CalculateDistanceKm(warehouseAddress, shippingAddress);
 
-            // Shipping cost formula for Standard
-            decimal baseCost = 5.0m;
-            decimal costPerKm = 0.25m;
-            decimal shippingCost = baseCost + (costPerKm * (decimal)distance);
+            // Safety: handle if BasketItems is null
+            int totalItems = basket.BasketItems?.Sum(bi => bi.Amount) ?? 0;
+
+            // Shipping cost formula
+            decimal baseCost = deliveryOption == "Express" ? 10.0m : 5.0m;
+            decimal costPerKm = deliveryOption == "Express" ? 0.5m : 0.25m;
+            decimal itemCost = totalItems * 0.50m; // 0.50 per item
+            decimal shippingCost = baseCost + (costPerKm * (decimal)distance) + itemCost;
 
             var shipping = new Shipping
             {
                 ShippingAddress = shippingAddress,
-                DeliveryOption = "Standard",
-                ShippingNumbers = "TRACK" + new Random().Next(100000, 999999),
-                ShippingCost = Math.Round(shippingCost, 2)
+                DeliveryOption = deliveryOption,
+                ShippingNumbers = (deliveryOption == "Express" ? "EXP" : "TRACK") + new Random().Next(100000, 999999),
+                ShippingCost = Math.Round(shippingCost, 2),
             };
+
             await _repository.AddAsync(shipping);
             return shipping;
-        }
-
-        public async Task<Shipping> CreateShipmentAsync(Order order, string shippingAddress)
-        {
-            // Assume warehouse address is hardcoded for demo
-            string warehouseAddress = "Gudena Warehouse, Aarhus";
-            double distance = CalculateDistanceKm(warehouseAddress, shippingAddress);
-
-            // Shipping cost formula for Express
-            decimal baseCost = 10.0m;
-            decimal costPerKm = 0.5m;
-            decimal shippingCost = baseCost + (costPerKm * (decimal)distance);
-
-            var shipment = new Shipping
-            {
-                ShippingAddress = shippingAddress,
-                DeliveryOption = "Express",
-                ShippingNumbers = "EXP" + new Random().Next(100000, 999999),
-                ShippingCost = Math.Round(shippingCost, 2)
-            };
-            await _repository.AddAsync(shipment);
-            return shipment;
         }
 
         public async Task<string> GetShipmentStatusAsync(int shippingId)
