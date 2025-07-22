@@ -9,6 +9,6 @@ public class WarrantyClaim
     public int ProductId { get; set; }
     public int OrderItemId { get; set; }
 
-    public Product Product { get; set; }
-    public OrderItem OrderItem { get; set; }
+    public Product Product { get; set; } = null!;
+    public OrderItem OrderItem { get; set; } = null!;
 }
