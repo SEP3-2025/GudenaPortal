@@ -3,6 +3,7 @@ using Gudena.Api.Services;
 using Gudena.Api.DTOs;
 using Gudena.Data;
 using Gudena.Data.Entities;
+using Gudena.Api.Exceptions;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
@@ -41,12 +42,12 @@ public class OrderController : ControllerBase
             var order = await _orderService.GetOrderAsync(userId, id);
             return Ok(order);
         }
-        catch (FileNotFoundException e)
+        catch (ResourceNotFoundException e)
         {
             Console.WriteLine($"Requested order not found: {e}");
             return NotFound();
         }
-        catch (UnauthorizedAccessException e)
+        catch (UserDoesNotOwnResourceException e)
         {
             Console.WriteLine($"Requested order {id} is not owned by this user {userId}: {e}");
             return Unauthorized();
@@ -58,26 +59,8 @@ public class OrderController : ControllerBase
     {
         // Get user
         var userId = User.FindFirst("uid")?.Value;
-        try
-        {
-            Order order = await _orderService.CreateOrderAsync(orderDto, userId);
-            return Ok(order);
-        }
-        catch (FileNotFoundException e)
-        {
-            Console.WriteLine($"Requested order not found: {e}");
-            return NotFound();
-        }
-        catch (UnauthorizedAccessException e)
-        {
-            Console.WriteLine($"Requested order {orderDto.Id} is not owned by this user {userId}: {e}");
-            return Unauthorized();
-        }
-        catch (AccessViolationException e)
-        {
-            Console.WriteLine($"Attempted to update OrderItem which does not belong to this order.");
-            return BadRequest();
-        }
+        Order order = await _orderService.CreateOrderAsync(orderDto, userId);
+        return Ok(order);
     }
 
     [HttpPut]
@@ -90,20 +73,15 @@ public class OrderController : ControllerBase
             Order order = await _orderService.UpdateOrderAsync(orderDto, userId);
             return Ok(order);
         }
-        catch (FileNotFoundException e)
+        catch (ResourceNotFoundException e)
         {
             Console.WriteLine($"Requested order not found: {e}");
             return NotFound();
         }
-        catch (UnauthorizedAccessException e)
+        catch (UserDoesNotOwnResourceException e)
         {
             Console.WriteLine($"Requested order {orderDto.Id} is not owned by this user {userId}: {e}");
             return Unauthorized();
-        }
-        catch (AccessViolationException e)
-        {
-            Console.WriteLine($"Invalid attempt to cancel an order");
-            return BadRequest();
         }
     }
 
@@ -117,17 +95,17 @@ public class OrderController : ControllerBase
             await _orderService.CancelOrderAsync(userId, id);
             return Ok();
         }
-        catch (FileNotFoundException e)
+        catch (ResourceNotFoundException e)
         {
             Console.WriteLine($"Requested order not found: {e}");
             return NotFound();
         }
-        catch (UnauthorizedAccessException e)
+        catch (UserDoesNotOwnResourceException e)
         {
             Console.WriteLine($"Requested order {id} is not owned by this user {userId}: {e}");
             return Unauthorized();
         }
-        catch (AccessViolationException e)
+        catch (IncancellableOrderException e)
         {
             Console.WriteLine($"Order cannot be cancelled as it has been processed: {e}");
             return Problem();

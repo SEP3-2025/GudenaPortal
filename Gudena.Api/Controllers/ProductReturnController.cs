@@ -1,6 +1,7 @@
 using System.Security.Claims;
 using Gudena.Api.Services;
 using Gudena.Api.DTOs;
+using Gudena.Api.Exceptions;
 using Gudena.Data;
 using Gudena.Data.Entities;
 using Microsoft.AspNetCore.Mvc;
@@ -48,21 +49,25 @@ public class ProductReturnController : ControllerBase
             ProductReturn productReturn = await _productReturnService.CreateAsync(productReturnDto, userId);
             return Ok(productReturn);
         }
-        catch (ArgumentException e) // OrderItem not found
+        catch (ResourceNotFoundException e) // OrderItem not found
         {
             Console.WriteLine(e);
             return NotFound();
         }
-        catch (AccessViolationException e) // Return has already been requested for this OrderItem
+        catch (ProductAlreadyReturnedException e) // Return has already been requested for this OrderItem
         {
             Console.WriteLine(e);
             return Problem();
         }
-        catch (UnauthorizedAccessException e) // User does not own the OrderItem
+        catch (NonReturnableProductException e)
+        {
+            Console.WriteLine(e);
+            return BadRequest();
+        }
+        catch (UserDoesNotOwnResourceException e) // User does not own the OrderItem
         {
             Console.WriteLine(e);
             return Unauthorized();
         }
     }
-    
 }

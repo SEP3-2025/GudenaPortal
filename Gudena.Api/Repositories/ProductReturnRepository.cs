@@ -1,5 +1,6 @@
 using System.ComponentModel.Design;
 using Gudena.Api.DTOs;
+using Gudena.Api.Exceptions;
 using Gudena.Data;
 using Gudena.Data.Entities;
 using Microsoft.EntityFrameworkCore;
@@ -38,23 +39,22 @@ public class ProductReturnRepository : IProductReturnRepository
         if (orderItem == null)
         {
             Console.WriteLine($"OrderItem {productReturnDto.OrderItemId} not found");
-            throw new ArgumentException();
+            throw new ResourceNotFoundException();
         }
-
         if (!orderItem.Product.isReturnable)
         {
             Console.WriteLine($"Attempted to return non returnable product {orderItem.ProductId} on orderItem {orderItem.Id}");
-            throw new CheckoutException();
+            throw new NonReturnableProductException();
         }
         if (orderItem.ProductReturn != null)
         {
             Console.WriteLine($"A return request already exists for OrderItem {productReturnDto.OrderItemId}");
-            throw new AccessViolationException();
+            throw new ProductAlreadyReturnedException();
         }
         if (orderItem.Order.ApplicationUserId != userId)
         {
             Console.WriteLine($"OrderItem {productReturnDto.OrderItemId} not owned by user {userId}");
-            throw new UnauthorizedAccessException();
+            throw new UserDoesNotOwnResourceException();
         }
         ProductReturn productReturn = new ProductReturn()
         {

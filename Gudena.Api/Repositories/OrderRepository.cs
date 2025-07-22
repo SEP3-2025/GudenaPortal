@@ -1,4 +1,5 @@
 using Gudena.Api.DTOs;
+using Gudena.Api.Exceptions;
 using Gudena.Data;
 using Gudena.Data.Entities;
 using Microsoft.EntityFrameworkCore;
@@ -24,9 +25,9 @@ public class OrderRepository : IOrderRepository
             .Include(o => o.OrderItems)
             .FirstOrDefaultAsync(o => o.Id == orderId);
         if (order == null)
-            throw new FileNotFoundException("Order not found", orderId.ToString()); // TODO: Custom exception
+            throw new ResourceNotFoundException($"Order not found {orderId}"); // TODO: Custom exception
         else if (order.ApplicationUserId != userId)
-            throw new UnauthorizedAccessException("Order does not belong to this user");
+            throw new UserDoesNotOwnResourceException("Order does not belong to this user");
         return order;
     }
 
@@ -79,7 +80,7 @@ public class OrderRepository : IOrderRepository
         {
             var orderItem = order.OrderItems.Single(b => b.Id == update.Id);
             if (orderItem.OrderId != orderDto.Id)
-                throw new AccessViolationException($"OrderItem {orderItem.Id} does not belong to order {orderDto.Id}");
+                throw new UserDoesNotOwnResourceException($"OrderItem {orderItem.Id} does not belong to order {orderDto.Id}");
             if (update.Quantity == 0) // Remove item from order
                 order.OrderItems.Remove(orderItem);
             else
@@ -97,7 +98,7 @@ public class OrderRepository : IOrderRepository
     {
         Order order = await GetOrderAsync(userId, orderId);
         if (order.Status != "Ordered")
-            throw new AccessViolationException($"Order {orderId} cannot be cancelled due to status {order.Status}");
+            throw new IncancellableOrderException($"Order {orderId} cannot be cancelled due to status {order.Status}");
         order.Status = "Canceled";
         await _context.SaveChangesAsync();
         return order;

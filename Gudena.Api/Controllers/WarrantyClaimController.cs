@@ -2,6 +2,7 @@ using System.ComponentModel.Design;
 using System.Security.Claims;
 using Gudena.Api.Services;
 using Gudena.Api.DTOs;
+using Gudena.Api.Exceptions;
 using Gudena.Data;
 using Gudena.Data.Entities;
 using Microsoft.AspNetCore.Mvc;
@@ -49,22 +50,17 @@ public class WarrantyClaimController : ControllerBase
             WarrantyClaim warrantyClaim = await _warrantyClaimService.CreateAsync(warrantyClaimDto, userId);
             return Ok(warrantyClaim);
         }
-        catch (ArgumentException e) // OrderItem not found
+        catch (ResourceNotFoundException e) // OrderItem not found
         {
             Console.WriteLine(e);
             return NotFound();
         }
-        catch (CheckoutException e) // Product cannot be returned
-        {
-            Console.WriteLine(e);
-            return BadRequest();
-        }
-        catch (AccessViolationException e) // A warranty claim has already been submitted for this OrderItem
+        catch (WarrantyAlreadyClaimedException e) // A warranty claim has already been submitted for this OrderItem
         {
             Console.WriteLine(e);
             return Problem();
         }
-        catch (UnauthorizedAccessException e) // User does not own the OrderItem
+        catch (UserDoesNotOwnResourceException e) // User does not own the OrderItem
         {
             Console.WriteLine(e);
             return Unauthorized();

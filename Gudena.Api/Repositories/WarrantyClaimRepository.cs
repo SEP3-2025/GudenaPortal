@@ -1,4 +1,5 @@
 using Gudena.Api.DTOs;
+using Gudena.Api.Exceptions;
 using Gudena.Data;
 using Gudena.Data.Entities;
 using Microsoft.EntityFrameworkCore;
@@ -35,17 +36,17 @@ public class WarrantyClaimRepository : IWarrantyClaimRepository
         if (orderItem == null)
         {
             Console.WriteLine($"OrderItem {warrantyClaimDto.OrderItemId} not found");
-            throw new ArgumentException();
+            throw new ResourceNotFoundException();
         }
         if (orderItem.WarrantyClaim != null)
         {
             Console.WriteLine($"A warranty claim already exists for OrderItem {warrantyClaimDto.OrderItemId}");
-            throw new AccessViolationException();
+            throw new WarrantyAlreadyClaimedException();
         }
         if (orderItem.Order.ApplicationUserId != userId)
         {
             Console.WriteLine($"OrderItem {warrantyClaimDto.OrderItemId} not owned by user {userId}");
-            throw new UnauthorizedAccessException();
+            throw new UserDoesNotOwnResourceException();
         }
         WarrantyClaim warrantyClaim = new WarrantyClaim()
         {
