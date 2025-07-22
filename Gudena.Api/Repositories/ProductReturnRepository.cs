@@ -51,7 +51,8 @@ public class ProductReturnRepository : IProductReturnRepository
         {
             ProductId = productReturnDto.OrderItemId, // TODO: Fix when merged with updated shipping logic
             Reason = productReturnDto.Reason,
-            RequestDate = DateTime.Now
+            RequestDate = DateTime.Now,
+            Status = "Requested"
         };
         _context.ProductReturns.Add(productReturn);
         await _context.SaveChangesAsync();
