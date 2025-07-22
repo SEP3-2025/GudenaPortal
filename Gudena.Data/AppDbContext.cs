@@ -21,12 +21,14 @@ public class AppDbContext : IdentityDbContext<ApplicationUser>
     public DbSet<BasketItem> BasketItems { get; set; }
 
     public AppDbContext(DbContextOptions<AppDbContext> options)
-        : base(options) { }
+        : base(options)
+    {
+    }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         base.OnModelCreating(modelBuilder);
-        
+
         // ApplicationUser to AccountDetails (one-to-one)
         modelBuilder.Entity<ApplicationUser>()
             .HasOne(u => u.AccountDetails)
@@ -57,28 +59,48 @@ public class AppDbContext : IdentityDbContext<ApplicationUser>
             .HasOne(p => p.Owner)
             .WithMany(u => u.Products)
             .HasForeignKey(p => p.OwnerId);
-        
+
         // Email uniqueness constraint
         modelBuilder.Entity<ApplicationUser>()
             .HasIndex(u => u.Email)
             .IsUnique();
-        
+
         // Basket Item to Product (one to many)
         modelBuilder.Entity<BasketItem>()
             .HasOne(bi => bi.Product)
             .WithMany()
             .HasForeignKey(bi => bi.ProductId);
-        
+
         // Basket Item to Basket (one to many)
         modelBuilder.Entity<BasketItem>()
             .HasOne(bi => bi.Basket)
             .WithMany(b => b.BasketItems)
             .HasForeignKey(bi => bi.BasketId);
-        
+
         // Category inheritance (one to many)
         modelBuilder.Entity<Category>()
             .HasOne(c => c.ParentCategory)
             .WithMany(c => c.Children)
             .IsRequired(false);
+
+        // Shipping to OrderItems (M:M)
+        modelBuilder.Entity<OrderItem>()
+            .HasMany(oi => oi.Shippings)
+            .WithMany(s => s.OrderItems)
+            .UsingEntity(j => j.ToTable("OrderItemShippings"));
+
+        // OrderItem to WarrantyClaim (optional 1:1)
+        modelBuilder.Entity<OrderItem>()
+            .HasOne(oi => oi.WarrantyClaim)
+            .WithOne(wc => wc.OrderItem)
+            .HasForeignKey<WarrantyClaim>(wc => wc.OrderItemId)
+            .OnDelete(DeleteBehavior.Cascade);
+
+        // OrderItem to ProductReturn (optional 1:1)
+        modelBuilder.Entity<OrderItem>()
+            .HasOne(oi => oi.ProductReturn)
+            .WithOne(pr => pr.OrderItem)
+            .HasForeignKey<ProductReturn>(pr => pr.OrderItemId)
+            .OnDelete(DeleteBehavior.Cascade);
     }
 }
