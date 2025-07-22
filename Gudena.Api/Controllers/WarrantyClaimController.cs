@@ -1,3 +1,4 @@
+using System.ComponentModel.Design;
 using System.Security.Claims;
 using Gudena.Api.Services;
 using Gudena.Api.DTOs;
@@ -52,6 +53,11 @@ public class WarrantyClaimController : ControllerBase
         {
             Console.WriteLine(e);
             return NotFound();
+        }
+        catch (CheckoutException e) // Product cannot be returned
+        {
+            Console.WriteLine(e);
+            return BadRequest();
         }
         catch (AccessViolationException e) // A warranty claim has already been submitted for this OrderItem
         {

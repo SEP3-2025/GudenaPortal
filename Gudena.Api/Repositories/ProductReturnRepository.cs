@@ -1,3 +1,4 @@
+using System.ComponentModel.Design;
 using Gudena.Api.DTOs;
 using Gudena.Data;
 using Gudena.Data.Entities;
@@ -38,6 +39,12 @@ public class ProductReturnRepository : IProductReturnRepository
         {
             Console.WriteLine($"OrderItem {productReturnDto.OrderItemId} not found");
             throw new ArgumentException();
+        }
+
+        if (!orderItem.Product.isReturnable)
+        {
+            Console.WriteLine($"Attempted to return non returnable product {orderItem.ProductId} on orderItem {orderItem.Id}");
+            throw new CheckoutException();
         }
         if (orderItem.ProductReturn != null)
         {
