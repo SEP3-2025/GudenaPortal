@@ -8,11 +8,10 @@ public class OrderItem
     public int Quantity { get; set; }
     public decimal PricePerUnit { get; set; }
 
-    public int ShippingId { get; set; }
-
-    public Order Order { get; set; } = null!;
-    public Product Product { get; set; } = null!;
-    public Shipping Shipping { get; set; } = null!;
+    public Order Order { get; set; }
+    public Product Product { get; set; }
+    
+    public ICollection<Shipping> Shippings { get; set; } = new List<Shipping>();
     public WarrantyClaim? WarrantyClaim { get; set; }
     public ProductReturn? ProductReturn { get; set; }
 }

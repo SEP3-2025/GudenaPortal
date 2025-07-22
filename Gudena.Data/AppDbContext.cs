@@ -83,12 +83,11 @@ public class AppDbContext : IdentityDbContext<ApplicationUser>
             .WithMany(c => c.Children)
             .IsRequired(false);
 
-        // Shipping to OrderItems (1:M)
+        // Shipping to OrderItems (M:M)
         modelBuilder.Entity<OrderItem>()
-            .HasOne(oi => oi.Shipping)
+            .HasMany(oi => oi.Shippings)
             .WithMany(s => s.OrderItems)
-            .HasForeignKey(oi => oi.ShippingId)
-            .OnDelete(DeleteBehavior.SetNull);
+            .UsingEntity(j => j.ToTable("OrderItemShippings"));
 
         // OrderItem to WarrantyClaim (optional 1:1)
         modelBuilder.Entity<OrderItem>()

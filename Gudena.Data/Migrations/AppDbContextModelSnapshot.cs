@@ -318,16 +318,11 @@ namespace Gudena.Data.Migrations
                     b.Property<int>("Quantity")
                         .HasColumnType("integer");
 
-                    b.Property<int>("ShippingId")
-                        .HasColumnType("integer");
-
                     b.HasKey("Id");
 
                     b.HasIndex("OrderId");
 
                     b.HasIndex("ProductId");
-
-                    b.HasIndex("ShippingId");
 
                     b.ToTable("OrderItems");
                 });
@@ -650,6 +645,21 @@ namespace Gudena.Data.Migrations
                     b.ToTable("AspNetUserTokens", (string)null);
                 });
 
+            modelBuilder.Entity("OrderItemShipping", b =>
+                {
+                    b.Property<int>("OrderItemsId")
+                        .HasColumnType("integer");
+
+                    b.Property<int>("ShippingsId")
+                        .HasColumnType("integer");
+
+                    b.HasKey("OrderItemsId", "ShippingsId");
+
+                    b.HasIndex("ShippingsId");
+
+                    b.ToTable("OrderItemShippings", (string)null);
+                });
+
             modelBuilder.Entity("AccountDetails", b =>
                 {
                     b.HasOne("Gudena.Data.Entities.ApplicationUser", "ApplicationUser")
@@ -763,17 +773,9 @@ namespace Gudena.Data.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("Gudena.Data.Entities.Shipping", "Shipping")
-                        .WithMany("OrderItems")
-                        .HasForeignKey("ShippingId")
-                        .OnDelete(DeleteBehavior.SetNull)
-                        .IsRequired();
-
                     b.Navigation("Order");
 
                     b.Navigation("Product");
-
-                    b.Navigation("Shipping");
                 });
 
             modelBuilder.Entity("Gudena.Data.Entities.Payment", b =>
@@ -895,6 +897,21 @@ namespace Gudena.Data.Migrations
                         .IsRequired();
                 });
 
+            modelBuilder.Entity("OrderItemShipping", b =>
+                {
+                    b.HasOne("Gudena.Data.Entities.OrderItem", null)
+                        .WithMany()
+                        .HasForeignKey("OrderItemsId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("Gudena.Data.Entities.Shipping", null)
+                        .WithMany()
+                        .HasForeignKey("ShippingsId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+                });
+
             modelBuilder.Entity("Basket", b =>
                 {
                     b.Navigation("BasketItems");
@@ -947,11 +964,6 @@ namespace Gudena.Data.Migrations
                     b.Navigation("ProductReturns");
 
                     b.Navigation("WarrantyClaims");
-                });
-
-            modelBuilder.Entity("Gudena.Data.Entities.Shipping", b =>
-                {
-                    b.Navigation("OrderItems");
                 });
 #pragma warning restore 612, 618
         }
