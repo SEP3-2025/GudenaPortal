@@ -60,6 +60,8 @@ builder.Services.AddScoped<IFavouriteRepository, FavouriteRepository>();
 builder.Services.AddScoped<IFavouriteService, FavouriteService>();
 builder.Services.AddScoped<IProductReturnRepository, ProductReturnRepository>();
 builder.Services.AddScoped<IProductReturnService, ProductReturnService>();
+builder.Services.AddScoped<IWarrantyClaimRepository, WarrantyClaimRepository>();
+builder.Services.AddScoped<IWarrantyClaimService, WarrantyClaimService>();
 
 // Add Swagger with JWT support
 builder.Services.AddEndpointsApiExplorer();
