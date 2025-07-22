@@ -1,6 +1,7 @@
-using Gudena.Api.Services;
-using Gudena.Data.Entities;
 using Gudena.Api.DTOs;
+using Gudena.Api.Services;
+using Gudena.Data;
+using Gudena.Data.Entities;
 using Microsoft.AspNetCore.Mvc;
 using System.Threading.Tasks;
 
@@ -10,34 +11,30 @@ namespace Gudena.Api.Controllers
     [Route("api/[controller]")]
     public class ShippingController : ControllerBase
     {
-        private readonly IShippingService _service;
-        private readonly IBasketService _basketService;
+        private readonly IShippingService _shippingService;
+        private readonly AppDbContext _context;
 
-        public ShippingController(IShippingService service, IBasketService basketService)
+        public ShippingController(IShippingService shippingService, AppDbContext context)
         {
-            _service = service;
-            _basketService = basketService;
+            _shippingService = shippingService;
+            _context = context;
         }
 
-        [HttpPost("calculate")]
+        [HttpPost]
         public async Task<ActionResult<Shipping>> CalculateShipping([FromBody] ShippingRequestDto dto)
         {
-            var basket = await _basketService.RetrieveBasketAsync(null, dto.BasketId);
+            var basket = await _context.Baskets.FindAsync(dto.BasketId);
             if (basket == null)
                 return NotFound("Basket not found");
 
-            var shipping = await _service.CalculateShippingAsync(
-                basket,
-                dto.ShippingAddress,
-                dto.DeliveryOption ?? "Standard" // default to "Standard" if not set
-            );
+            var shipping = await _shippingService.CalculateShippingAsync(basket, dto.ShippingAddress, dto.DeliveryOption);
             return Ok(shipping);
         }
 
         [HttpGet("{id}/status")]
-        public async Task<ActionResult<string>> GetStatus(int id)
+        public async Task<ActionResult<string>> GetShipmentStatus(int id)
         {
-            var status = await _service.GetShipmentStatusAsync(id);
+            var status = await _shippingService.GetShipmentStatusAsync(id);
             return Ok(status);
         }
     }

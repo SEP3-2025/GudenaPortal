@@ -1,7 +1,9 @@
 using Gudena.Api.DTOs;
 using Gudena.Api.Services;
+using Gudena.Data;
 using Gudena.Data.Entities;
 using Microsoft.AspNetCore.Mvc;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 
 namespace Gudena.Api.Controllers
@@ -11,32 +13,22 @@ namespace Gudena.Api.Controllers
     public class PaymentController : ControllerBase
     {
         private readonly IPaymentService _paymentService;
-        private readonly IBasketService _basketService;
+        private readonly AppDbContext _context;
 
-        public PaymentController(IPaymentService paymentService, IBasketService basketService)
+        public PaymentController(IPaymentService paymentService, AppDbContext context)
         {
             _paymentService = paymentService;
-            _basketService = basketService;
+            _context = context;
         }
 
         [HttpPost]
         public async Task<ActionResult<Payment>> ProcessPayment([FromBody] PaymentRequestDto dto)
         {
-            var basket = await _basketService.RetrieveBasketAsync(null, dto.BasketId);
+            var basket = await _context.Baskets.FindAsync(dto.BasketId);
             if (basket == null)
                 return NotFound("Basket not found");
 
             var payment = await _paymentService.ProcessPaymentAsync(basket, dto.Amount, dto.PaymentMethod);
-            return Ok(payment);
-        }
-
-        [HttpGet("{id}")]
-        public async Task<ActionResult<Payment>> GetPayment(int id)
-        {
-            var payment = await _paymentService.GetPaymentByIdAsync(id);
-            if (payment == null)
-                return NotFound();
-
             return Ok(payment);
         }
 

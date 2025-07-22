@@ -26,7 +26,7 @@ public class AppDbContext : IdentityDbContext<ApplicationUser>
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         base.OnModelCreating(modelBuilder);
-        
+
         // ApplicationUser to AccountDetails (one-to-one)
         modelBuilder.Entity<ApplicationUser>()
             .HasOne(u => u.AccountDetails)
@@ -57,28 +57,35 @@ public class AppDbContext : IdentityDbContext<ApplicationUser>
             .HasOne(p => p.Owner)
             .WithMany(u => u.Products)
             .HasForeignKey(p => p.OwnerId);
-        
+
         // Email uniqueness constraint
         modelBuilder.Entity<ApplicationUser>()
             .HasIndex(u => u.Email)
             .IsUnique();
-        
+
         // Basket Item to Product (one to many)
         modelBuilder.Entity<BasketItem>()
             .HasOne(bi => bi.Product)
             .WithMany()
             .HasForeignKey(bi => bi.ProductId);
-        
+
         // Basket Item to Basket (one to many)
         modelBuilder.Entity<BasketItem>()
             .HasOne(bi => bi.Basket)
             .WithMany(b => b.BasketItems)
             .HasForeignKey(bi => bi.BasketId);
-        
+
         // Category inheritance (one to many)
         modelBuilder.Entity<Category>()
             .HasOne(c => c.ParentCategory)
             .WithMany(c => c.Children)
             .IsRequired(false);
+
+        // Shipping to Basket (one to many)
+        modelBuilder.Entity<Shipping>()
+            .HasOne(s => s.Basket)
+            .WithMany()
+            .HasForeignKey(s => s.BasketId)
+            .OnDelete(DeleteBehavior.SetNull);
     }
 }

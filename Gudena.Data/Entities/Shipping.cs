@@ -7,8 +7,8 @@ public class Shipping
     public string DeliveryOption { get; set; }
     public string ShippingNumbers { get; set; }
     public decimal ShippingCost { get; set; }
-    public int BasketId { get; set; }
-    public Basket Basket { get; set; }
+    public int? BasketId { get; set; }
+    public Basket? Basket { get; set; }
     public ICollection<WarrantyClaim> WarrantyClaims { get; set; }
     public ICollection<ProductReturn> ProductReturns { get; set; }
 }

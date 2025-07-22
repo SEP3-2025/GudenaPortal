@@ -1,8 +1,7 @@
-using System;
-using System.Collections.Generic;
-using System.Threading.Tasks;
 using Gudena.Api.Repositories;
 using Gudena.Data.Entities;
+using System.Collections.Generic;
+using System.Threading.Tasks;
 
 namespace Gudena.Api.Services
 {
@@ -22,23 +21,22 @@ namespace Gudena.Api.Services
                 BasketId = basket.Id,
                 Amount = amount,
                 PaymentMethod = paymentMethod,
-                PaymentStatus = "Completed",
-                TransactionDate = DateTime.UtcNow
+                PaymentStatus = "DummyCompleted",
+                TransactionDate = DateTime.UtcNow,
+                Basket = basket
             };
             await _repository.AddAsync(payment);
             return payment;
         }
 
-        public async Task<Payment?> GetPaymentByIdAsync(int id)
-        {
-            return await _repository.GetByIdAsync(id);
-        }
-
         public async Task<IEnumerable<Payment>> GetPaymentsByBasketIdAsync(int basketId)
-        {
-            return await _repository.GetPaymentsByBasketIdAsync(basketId);
-        }
+            => await _repository.GetPaymentsByBasketIdAsync(basketId);
 
+        public async Task<IEnumerable<Payment>> GetAllAsync() => await _repository.GetAllAsync();
+        public async Task<Payment?> GetByIdAsync(int id) => await _repository.GetByIdAsync(id);
+        public async Task AddAsync(Payment payment) => await _repository.AddAsync(payment);
+        public async Task UpdateAsync(Payment payment) => await _repository.UpdateAsync(payment);
+        public async Task DeleteAsync(int id) => await _repository.DeleteAsync(id);
         public async Task UpdatePaymentStatusAsync(int paymentId, string status)
         {
             var payment = await _repository.GetByIdAsync(paymentId);
@@ -48,17 +46,7 @@ namespace Gudena.Api.Services
                 await _repository.UpdateAsync(payment);
             }
         }
-
-        // Interface-required methods
-        public async Task<IEnumerable<Payment>> GetAllAsync() => await _repository.GetAllAsync();
-        public async Task<Payment?> GetByIdAsync(int id) => await _repository.GetByIdAsync(id);
-        public async Task AddAsync(Payment payment) => await _repository.AddAsync(payment);
-        public async Task UpdateAsync(Payment payment) => await _repository.UpdateAsync(payment);
-        public async Task DeleteAsync(int id) => await _repository.DeleteAsync(id);
-
         public async Task<Payment?> GetLatestByBasketIdAsync(int basketId)
-        {
-            return await _repository.GetLatestByBasketIdAsync(basketId);
-        }
+            => await _repository.GetLatestByBasketIdAsync(basketId);
     }
 }
