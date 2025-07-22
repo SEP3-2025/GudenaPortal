@@ -58,10 +58,9 @@ public class OrderController : ControllerBase
     {
         // Get user
         var userId = User.FindFirst("uid")?.Value;
-        var user = await _userManager.FindByIdAsync(userId);
         try
         {
-            Order order = await _orderService.CreateOrderAsync(orderDto, user);
+            Order order = await _orderService.CreateOrderAsync(orderDto, userId);
             return Ok(order);
         }
         catch (FileNotFoundException e)

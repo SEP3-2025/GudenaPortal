@@ -40,7 +40,7 @@ public class OrderRepository : IOrderRepository
         return orders;
     }
 
-    public async Task<Order> CreateOrderAsync(OrderDto orderDto, ApplicationUser user)
+    public async Task<Order> CreateOrderAsync(OrderDto orderDto, string userId)
     {
         List<OrderItem> orderItems = new List<OrderItem>();
         foreach (var basketItem in orderDto.Basket.BasketItems)
@@ -60,12 +60,11 @@ public class OrderRepository : IOrderRepository
             Status = "Ordered",
             PaymentMethod = "Test Payment", // TODO: Modify once merged with payment logic
             TotalAmount = orderDto.Total,
-            ApplicationUserId = orderDto.UserId,
+            ApplicationUserId = userId,
             //ShippingId = orderDto.ShippingId,
             Shipping = new Shipping() { DeliveryOption = "Test Delivery", ShippingAddress = "Test address", ShippingNumbers = "SHIP192933" },
             // TODO: Add paymentId once merged with payment logic
-            OrderItems = orderItems,
-            ApplicationUser = user
+            OrderItems = orderItems
         };
         _context.Orders.Add(newOrder);
         await _context.SaveChangesAsync();

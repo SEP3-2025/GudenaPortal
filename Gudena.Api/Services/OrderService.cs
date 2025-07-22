@@ -23,9 +23,9 @@ public class OrderService : IOrderService
         return await _orderRepository.GetOrdersAsync(userId);
     }
 
-    public async Task<Order> CreateOrderAsync(OrderDto orderDto, ApplicationUser user)
+    public async Task<Order> CreateOrderAsync(OrderDto orderDto, string userId)
     {
-        return await _orderRepository.CreateOrderAsync(orderDto, user);
+        return await _orderRepository.CreateOrderAsync(orderDto, userId);
     }
 
     public async Task<Order> UpdateOrderAsync(OrderUpdateDto orderDto, string userId)
