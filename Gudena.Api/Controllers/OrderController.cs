@@ -59,8 +59,16 @@ public class OrderController : ControllerBase
     {
         // Get user
         var userId = User.FindFirst("uid")?.Value;
-        Order order = await _orderService.CreateOrderAsync(orderDto, userId);
-        return Ok(order);
+        try
+        {
+            Order order = await _orderService.CreateOrderAsync(orderDto, userId);
+            return Ok(order);
+        }
+        catch (OrderExceedsStockException e)
+        {
+            Console.WriteLine(e);
+            return BadRequest(e.Message);
+        }
     }
 
     [HttpPut]
@@ -82,6 +90,11 @@ public class OrderController : ControllerBase
         {
             Console.WriteLine($"Requested order {orderDto.Id} is not owned by this user {userId}: {e}");
             return Unauthorized();
+        }
+        catch (OrderExceedsStockException e)
+        {
+            Console.WriteLine(e);
+            return BadRequest(e.Message);
         }
     }
 
