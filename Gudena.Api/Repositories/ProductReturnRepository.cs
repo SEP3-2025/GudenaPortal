@@ -18,7 +18,7 @@ public class ProductReturnRepository : IProductReturnRepository
     {
         return await _context.ProductReturns
             .Include(pr => pr.Product)
-            .Where(pr => true) // TODO: Fix when merged with updated shipping logic
+            .Where(pr => pr.OrderItem.Order.ApplicationUserId == userId)
             .ToListAsync();
     }
 
@@ -26,30 +26,33 @@ public class ProductReturnRepository : IProductReturnRepository
     {
         return await _context.ProductReturns
             .Include(pr => pr.Product)
-            .FirstOrDefaultAsync(pr => true); // TODO: Fix when merged with updated shipping logic
+            .FirstOrDefaultAsync(pr => pr.Id == productReturnId && pr.OrderItem.Order.ApplicationUserId == userId);
     }
 
     public async Task<ProductReturn> CreateAsync(ProductReturnDto productReturnDto, string userId)
     {
-        OrderItem orderItem = await _context.OrderItems.FirstOrDefaultAsync(oi => oi.Id == productReturnDto.OrderItemId);
+        OrderItem orderItem = await _context.OrderItems
+            .Include(orderItem => orderItem.ProductReturn).Include(orderItem => orderItem.Order)
+            .FirstOrDefaultAsync(oi => oi.Id == productReturnDto.OrderItemId);
         if (orderItem == null)
         {
             Console.WriteLine($"OrderItem {productReturnDto.OrderItemId} not found");
             throw new ArgumentException();
         }
-        if (false)
+        if (orderItem.ProductReturn != null)
         {
-            Console.WriteLine($"A return request already exists for OrderItem {productReturnDto.OrderItemId}"); // TODO: Fix when merged with updated shipping logic
+            Console.WriteLine($"A return request already exists for OrderItem {productReturnDto.OrderItemId}");
             throw new AccessViolationException();
         }
-        if (false)
+        if (orderItem.Order.ApplicationUserId != userId)
         {
-            Console.WriteLine($"OrderItem {productReturnDto.OrderItemId} not owned by user {userId}"); // TODO: Fix when merged with updated shipping logic
+            Console.WriteLine($"OrderItem {productReturnDto.OrderItemId} not owned by user {userId}");
             throw new UnauthorizedAccessException();
         }
         ProductReturn productReturn = new ProductReturn()
         {
-            ProductId = productReturnDto.OrderItemId, // TODO: Fix when merged with updated shipping logic
+            ProductId = orderItem.ProductId,
+            OrderItemId = productReturnDto.OrderItemId,
             Reason = productReturnDto.Reason,
             RequestDate = DateTime.Now,
             Status = "Requested"

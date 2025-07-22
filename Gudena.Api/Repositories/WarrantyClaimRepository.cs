@@ -18,7 +18,7 @@ public class WarrantyClaimRepository : IWarrantyClaimRepository
     {
         return await _context.WarrantyClaims
             .Include(wc => wc.Product)
-            .Where(wc => true) // TODO: Fix when merged with updated shipping logic
+            .Where(wc => wc.OrderItem.Order.ApplicationUserId == userId)
             .ToListAsync();
     }
 
@@ -26,30 +26,31 @@ public class WarrantyClaimRepository : IWarrantyClaimRepository
     {
         return await _context.WarrantyClaims
             .Include(wc => wc.Product)
-            .FirstOrDefaultAsync(pr => true); // TODO: Fix when merged with updated shipping logic
+            .FirstOrDefaultAsync(wc => wc.Id == warrantyClaimId && wc.OrderItem.Order.ApplicationUserId == userId);
     }
 
     public async Task<WarrantyClaim> CreateAsync(WarrantyClaimDto warrantyClaimDto, string userId)
     {
-        OrderItem orderItem = await _context.OrderItems.FirstOrDefaultAsync(oi => oi.Id == warrantyClaimDto.OrderItemId);
+        OrderItem orderItem = await _context.OrderItems.Include(orderItem => orderItem.Order).FirstOrDefaultAsync(oi => oi.Id == warrantyClaimDto.OrderItemId);
         if (orderItem == null)
         {
             Console.WriteLine($"OrderItem {warrantyClaimDto.OrderItemId} not found");
             throw new ArgumentException();
         }
-        if (false)
+        if (orderItem.WarrantyClaim != null)
         {
-            Console.WriteLine($"A warranty claim already exists for OrderItem {warrantyClaimDto.OrderItemId}"); // TODO: Fix when merged with updated shipping logic
+            Console.WriteLine($"A warranty claim already exists for OrderItem {warrantyClaimDto.OrderItemId}");
             throw new AccessViolationException();
         }
-        if (false)
+        if (orderItem.Order.ApplicationUserId != userId)
         {
-            Console.WriteLine($"OrderItem {warrantyClaimDto.OrderItemId} not owned by user {userId}"); // TODO: Fix when merged with updated shipping logic
+            Console.WriteLine($"OrderItem {warrantyClaimDto.OrderItemId} not owned by user {userId}");
             throw new UnauthorizedAccessException();
         }
         WarrantyClaim warrantyClaim = new WarrantyClaim()
         {
-            ProductId = warrantyClaimDto.OrderItemId, // TODO: Fix when merged with updated shipping logic
+            ProductId = orderItem.ProductId,
+            OrderItemId = warrantyClaimDto.OrderItemId,
             Reason = warrantyClaimDto.Reason,
             ClaimDate = DateTime.Now,
             Status = "Submitted"
