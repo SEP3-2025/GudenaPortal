@@ -91,6 +91,11 @@ builder.Services.AddSwaggerGen(c =>
     });
 });
 
+builder.Services.AddAuthorization(options =>
+{
+    options.AddPolicy("BusinessOnly", policy =>
+        policy.RequireClaim("userType", "Business"));
+});
 
 var app = builder.Build();
 
@@ -100,6 +105,7 @@ using (var scope = app.Services.CreateScope())
     var dbContext = scope.ServiceProvider.GetRequiredService<AppDbContext>();
     // dbContext.Database.Migrate(); // Uncomment if you want automatic migrations
 }
+
 
 // Configure the middleware
 if (app.Environment.IsDevelopment())
