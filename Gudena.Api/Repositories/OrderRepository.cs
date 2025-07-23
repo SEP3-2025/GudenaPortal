@@ -10,11 +10,13 @@ public class OrderRepository : IOrderRepository
 {
     private readonly AppDbContext _context;
     private readonly IProductRepository _productRepository;
+    private readonly IBasketRepository _basketRepository;
 
-    public OrderRepository(AppDbContext context, IProductRepository productRepository)
+    public OrderRepository(AppDbContext context, IProductRepository productRepository, IBasketRepository basketRepository)
     {
         _context = context;
         _productRepository = productRepository;
+        _basketRepository = basketRepository;
     }
     
     public async Task<Order> GetOrderAsync(string userId, int orderId)
@@ -46,7 +48,8 @@ public class OrderRepository : IOrderRepository
     public async Task<Order> CreateOrderAsync(OrderDto orderDto, string userId)
     {
         List<OrderItem> orderItems = new List<OrderItem>();
-        foreach (var basketItem in orderDto.Basket.BasketItems)
+        Basket basket = await _basketRepository.RetrieveBasketAsync(userId, -1);
+        foreach (var basketItem in basket.BasketItems)
         {
             var product = await _productRepository.GetByIdAsync(basketItem.ProductId);
             if (product.Stock < basketItem.Amount) // Attempted to order more products than those in stock
@@ -77,6 +80,7 @@ public class OrderRepository : IOrderRepository
         };
         _context.Orders.Add(newOrder);
         await _context.SaveChangesAsync();
+        await _basketRepository.DestroyBasketAsync(basket.Id); // Destroy basket
         return newOrder;
     }
 
