@@ -1,18 +1,16 @@
 using Gudena.Api.Services;
-using Gudena.Data;
 using Gudena.Data.Entities;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
 
 namespace Gudena.Api.Controllers;
 
 [ApiController]
 [Route("api/[controller]")]
-public class ProductsController : ControllerBase
+public class BuyerProductsController : ControllerBase
 {
     private readonly IProductService _service;
 
-    public ProductsController(IProductService service)
+    public BuyerProductsController(IProductService service)
     {
         _service = service;
     }

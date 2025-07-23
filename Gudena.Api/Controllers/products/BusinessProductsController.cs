@@ -13,12 +13,12 @@ namespace Gudena.Api.Controllers
     [ApiController]
     [Route("api/business/products")]
     [Authorize(Policy = "BusinessOnly")]
-    public class BusinessProductController : ControllerBase
+    public class BusinessProductsController : ControllerBase
     {
         private readonly UserManager<ApplicationUser> _userManager;
         private readonly AppDbContext _context;
 
-        public BusinessProductController(UserManager<ApplicationUser> userManager, AppDbContext context)
+        public BusinessProductsController(UserManager<ApplicationUser> userManager, AppDbContext context)
         {
             _userManager = userManager;
             _context = context;

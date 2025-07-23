@@ -25,8 +25,8 @@ public class AuthController : ControllerBase
         _context = context;
     }
 
-    [HttpPost("register-buyer")]
-    public async Task<IActionResult> Register(RegisterDto dto)
+    [HttpPost("register/buyer")]
+    public async Task<IActionResult> Register(BuyerRegisterDto dto)
     {
         var user = new ApplicationUser
         {
@@ -55,7 +55,7 @@ public class AuthController : ControllerBase
         return Ok("Registration successful.");
     }
     
-    [HttpPost("register-business")]
+    [HttpPost("register/business")]
     public async Task<IActionResult> RegisterBusiness(BusinessRegisterDto dto)
     {
         var user = new ApplicationUser
