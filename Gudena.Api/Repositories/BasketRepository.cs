@@ -2,6 +2,7 @@ using System.Text.Json;
 using System.Text.Json.Serialization;
 using Gudena.Data;
 using Gudena.Data.Entities;
+using Gudena.Api.Exceptions;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 
@@ -52,17 +53,29 @@ public class BasketRepository : IBasketRepository
     {
         Basket basket = await RetrieveBasketAsync(null, basketId);
         if (basket == null)
-            throw new Exception("Basket not found");
+            throw new ResourceNotFoundException("Basket not found");
         BasketItem? basketItem = basket.BasketItems.FirstOrDefault(bi => bi.ProductId == productId);
         if (basketItem == null) // Product isn't in the basket
         {
             Product? product = await _productRepository.GetByIdAsync(productId);
             if (product == null)
-                throw new Exception("Product not found");
+                throw new ResourceNotFoundException("Product not found");
+            if (product.Stock < amount)
+            {
+                Console.WriteLine($"Basket addition for {amount} product {productId} exceeds stock {basketItem.Product.Stock}");
+                throw new BasketExceedsStockException($"Basket addition for {amount} product {productId} exceeds stock {basketItem.Product.Stock}");
+            }
             basket.BasketItems.Add(new BasketItem { Product = product, Amount = amount });
         }
         else // Product is already in the basket, add the specified amount
+        {
             basketItem.Amount += amount;
+            if (basketItem.Product.Stock < basketItem.Amount)
+            {
+                Console.WriteLine($"BasketItem {basketItem.Id} quantity update to {amount} exceeds product {basketItem.ProductId} stock {basketItem.Product.Stock}");
+                throw new BasketExceedsStockException($"BasketItem {basketItem.Id} quantity update to {amount} exceeds product {basketItem.ProductId} stock {basketItem.Product.Stock}");
+            }
+        }
         await _context.SaveChangesAsync();
         return basket;
     }
@@ -73,12 +86,17 @@ public class BasketRepository : IBasketRepository
             return await RemoveProductFromBasketAsync(basketId, productId);
         Basket basket = await RetrieveBasketAsync(null, basketId);
         if (basket == null)
-            throw new Exception("Basket not found");
+            throw new ResourceNotFoundException("Basket not found");
         if (basket.BasketItems == null)
             basket.BasketItems = new List<BasketItem>();
         BasketItem? basketItem = basket.BasketItems.FirstOrDefault(bi => bi.ProductId == productId);
         if (basketItem == null)
-            throw new Exception("BasketItem not found");
+            throw new ResourceNotFoundException("BasketItem not found");
+        if (basketItem.Product.Stock < amount)
+        {
+            Console.WriteLine($"BasketItem {basketItem.Id} quantity update to {amount} exceeds product {basketItem.ProductId} stock {basketItem.Product.Stock}");
+            throw new BasketExceedsStockException($"BasketItem {basketItem.Id} quantity update to {amount} exceeds product {basketItem.ProductId} stock {basketItem.Product.Stock}");
+        }
         basketItem.Amount = amount;
         await _context.SaveChangesAsync();
         return basket;
@@ -88,10 +106,10 @@ public class BasketRepository : IBasketRepository
     {
         Basket basket = await RetrieveBasketAsync(null, basketId);
         if (basket == null)
-            throw new Exception("Basket not found");
+            throw new ResourceNotFoundException("Basket not found");
         BasketItem? basketItem = basket.BasketItems.FirstOrDefault(bi => bi.ProductId == productId);
         if (basketItem == null)
-            throw new Exception("BasketItem not found");
+            throw new ResourceNotFoundException("BasketItem not found");
         _context.BasketItems.Remove(basketItem);
         await _context.SaveChangesAsync();
         return basket;
@@ -101,7 +119,7 @@ public class BasketRepository : IBasketRepository
     {
         Basket basket = await RetrieveBasketAsync(null, basketId);
         if (basket == null)
-            throw new Exception("Basket not found");
+            throw new ResourceNotFoundException("Basket not found");
         _context.Remove(basket);
         await _context.SaveChangesAsync();
     }
