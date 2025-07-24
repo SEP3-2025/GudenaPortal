@@ -25,6 +25,8 @@ using System.ComponentModel.DataAnnotations;
         public string Street { get; set; }
         [Required]
         public string PostalCode { get; set; }
+        [Required]
+        public string Country { get; set; }
 
         [Required]
         public string PhoneNumber { get; set; }

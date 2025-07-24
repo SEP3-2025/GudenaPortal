@@ -21,5 +21,7 @@ public class BuyerRegisterDto
     [Required]
     public string PostalCode { get; set; }
     [Required]
+    public string Country { get; set; }
+    [Required]
     public string PhoneNumber { get; set; }
 }

@@ -8,9 +8,9 @@ namespace Gudena.Api.Controllers;
 [Route("api/[controller]")]
 public class BuyerProductsController : ControllerBase
 {
-    private readonly IProductService _service;
+    private readonly IBuyerProductService _service;
 
-    public BuyerProductsController(IProductService service)
+    public BuyerProductsController(IBuyerProductService service)
     {
         _service = service;
     }

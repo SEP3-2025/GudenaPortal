@@ -2,7 +2,7 @@ using Gudena.Data.Entities;
 
 namespace Gudena.Api.Services;
 
-public interface IProductService
+public interface IBuyerProductService
 {
     Task<IEnumerable<Product>> GetAllProductsAsync();
     Task<Product?> GetProductByIdAsync(int id);

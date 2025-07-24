@@ -47,6 +47,7 @@ public class AuthController : ControllerBase
             City = dto.City,
             Street = dto.Street,
             PostalCode = dto.PostalCode,
+            Country = dto.Country,
             PhoneNumber = dto.PhoneNumber,
             ApplicationUserId = user.Id
         };
@@ -79,6 +80,7 @@ public class AuthController : ControllerBase
             City = dto.City,
             Street = dto.Street,
             PostalCode = dto.PostalCode,
+            Country = dto.Country,
             PhoneNumber = dto.PhoneNumber,
             CompanyName = dto.CompanyName,
             ApplicationUserId = user.Id
