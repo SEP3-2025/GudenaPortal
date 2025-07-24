@@ -10,10 +10,12 @@ namespace Gudena.Api.Controllers
     public class PaymentController : ControllerBase
     {
         private readonly IPaymentService _paymentService;
+        private readonly IOrderService _orderService;
 
-        public PaymentController(IPaymentService paymentService)
+        public PaymentController(IPaymentService paymentService, IOrderService orderService)
         {
             _paymentService = paymentService;
+            _orderService = orderService;
         }
 
         [HttpGet("{id}")]
@@ -50,14 +52,31 @@ namespace Gudena.Api.Controllers
         [HttpPatch("{id}/refund")]
         public async Task<IActionResult> RefundPaymentAsync(int id)
         {
+            var userId = User.FindFirst("uid")?.Value;
             var payment = await _paymentService.GetPaymentByIdAsync(id);
             if (payment == null)
                 return NotFound();
 
-            payment.PaymentStatus = "Refunded";
-            await _paymentService.UpdatePaymentAsync(payment);
+            if (payment.OrderId == null)
+                return BadRequest("This payment is not associated with any order.");
 
-            return Ok(payment);
+            if (payment.PaymentStatus == "Refunded")
+                return BadRequest("This payment has already been refunded.");
+
+            try
+            {
+                // Throws exception if user doesn't own order
+                var order = await _orderService.GetOrderAsync(userId, payment.OrderId.Value);
+
+                payment.PaymentStatus = "Refunded";
+                await _paymentService.UpdatePaymentAsync(payment);
+
+                return Ok(payment);
+            }
+            catch (UnauthorizedAccessException)
+            {
+                return Unauthorized("You do not own this order/payment.");
+            }
         }
     }
 }
