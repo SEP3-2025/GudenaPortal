@@ -12,4 +12,6 @@ public class Shipping
 
     public int? OrderItemId { get; set; } // nullable for dummy/testing only; make required in final version
     public OrderItem OrderItem { get; set; }
+
+
 }
