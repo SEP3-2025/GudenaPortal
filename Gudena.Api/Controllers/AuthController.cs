@@ -25,8 +25,8 @@ public class AuthController : ControllerBase
         _context = context;
     }
 
-    [HttpPost("register")]
-    public async Task<IActionResult> Register(RegisterDto dto)
+    [HttpPost("register/buyer")]
+    public async Task<IActionResult> Register(BuyerRegisterDto dto)
     {
         var user = new ApplicationUser
         {
@@ -44,7 +44,10 @@ public class AuthController : ControllerBase
         {
             FirstName = dto.FirstName,
             LastName = dto.LastName,
-            Address = dto.Address,
+            City = dto.City,
+            Street = dto.Street,
+            PostalCode = dto.PostalCode,
+            Country = dto.Country,
             PhoneNumber = dto.PhoneNumber,
             ApplicationUserId = user.Id
         };
@@ -53,6 +56,40 @@ public class AuthController : ControllerBase
         await _context.SaveChangesAsync();
 
         return Ok("Registration successful.");
+    }
+    
+    [HttpPost("register/business")]
+    public async Task<IActionResult> RegisterBusiness(BusinessRegisterDto dto)
+    {
+        var user = new ApplicationUser
+        {
+            UserName = dto.Email,
+            Email = dto.Email,
+            UserType = "Business"
+        };
+
+        var result = await _userManager.CreateAsync(user, dto.Password);
+
+        if (!result.Succeeded)
+            return BadRequest(result.Errors);
+
+        var accountDetails = new AccountDetails
+        {
+            FirstName = dto.FirstName,
+            LastName = dto.LastName,
+            City = dto.City,
+            Street = dto.Street,
+            PostalCode = dto.PostalCode,
+            Country = dto.Country,
+            PhoneNumber = dto.PhoneNumber,
+            CompanyName = dto.CompanyName,
+            ApplicationUserId = user.Id
+        };
+
+        _context.AccountDetails.Add(accountDetails);
+        await _context.SaveChangesAsync();
+
+        return Ok("Business registration successful.");
     }
 
     [HttpPost("login")]

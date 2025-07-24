@@ -3,11 +3,11 @@ using Gudena.Data.Entities;
 
 namespace Gudena.Api.Services;
 
-public class ProductService : IProductService
+public class BuyerProductService : IBuyerProductService
 {
     private readonly IProductRepository _repository;
 
-    public ProductService(IProductRepository repository)
+    public BuyerProductService(IProductRepository repository)
     {
         _repository = repository;
     }

@@ -9,6 +9,7 @@ using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using System.Text;
 using System.Text.Json.Serialization;
+using Gudena.Api.Services.Interfaces;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -49,7 +50,7 @@ builder.Services.AddAuthentication(options =>
 builder.Services.AddControllers()
     .AddJsonOptions(j => j.JsonSerializerOptions.ReferenceHandler = ReferenceHandler.Preserve);
 builder.Services.AddScoped<IProductRepository, ProductRepository>();
-builder.Services.AddScoped<IProductService, ProductService>();
+builder.Services.AddScoped<IBuyerProductService, BuyerProductService>();
 builder.Services.AddScoped<IBasketRepository, BasketRepository>();
 builder.Services.AddScoped<IBasketService, BasketService>();
 builder.Services.AddScoped<IOrderRepository, OrderRepository>();
@@ -62,6 +63,7 @@ builder.Services.AddScoped<IProductReturnRepository, ProductReturnRepository>();
 builder.Services.AddScoped<IProductReturnService, ProductReturnService>();
 builder.Services.AddScoped<IWarrantyClaimRepository, WarrantyClaimRepository>();
 builder.Services.AddScoped<IWarrantyClaimService, WarrantyClaimService>();
+builder.Services.AddScoped<IBusinessProductService, BusinessProductService>();
 
 // Add Swagger with JWT support
 builder.Services.AddEndpointsApiExplorer();
@@ -91,6 +93,11 @@ builder.Services.AddSwaggerGen(c =>
     });
 });
 
+builder.Services.AddAuthorization(options =>
+{
+    options.AddPolicy("BusinessOnly", policy =>
+        policy.RequireClaim("userType", "Business"));
+});
 
 var app = builder.Build();
 
@@ -100,6 +107,7 @@ using (var scope = app.Services.CreateScope())
     var dbContext = scope.ServiceProvider.GetRequiredService<AppDbContext>();
     // dbContext.Database.Migrate(); // Uncomment if you want automatic migrations
 }
+
 
 // Configure the middleware
 if (app.Environment.IsDevelopment())
