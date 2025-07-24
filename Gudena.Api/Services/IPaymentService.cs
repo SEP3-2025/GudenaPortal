@@ -1,12 +1,14 @@
 using Gudena.Data.Entities;
 
-namespace Gudena.Api.Services;
-
-public interface IPaymentService
+namespace Gudena.Api.Services
 {
-    Task<Payment?> GetPaymentByIdAsync(int id);
-    Task<IEnumerable<Payment>> GetPaymentsByOrderIdAsync(int orderId);
-    Task<Payment> CreatePaymentAsync(Payment payment);
-    Task<Payment> UpdatePaymentAsync(Payment payment);
-    Task DeletePaymentAsync(int id);
+    public interface IPaymentService
+    {
+        Task<Payment?> GetPaymentByIdAsync(int id);
+        Task<IEnumerable<Payment>> GetPaymentsByOrderIdAsync(int orderId);
+        Task<Payment> CreatePaymentAsync(Payment payment);
+
+        // For refunding (status change only)
+        Task<Payment> UpdatePaymentAsync(Payment payment);
+    }
 }
