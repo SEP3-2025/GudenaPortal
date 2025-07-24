@@ -75,7 +75,7 @@ namespace Gudena.Api.Controllers
             }
             catch (UnauthorizedAccessException)
             {
-                return Unauthorized("You do not own this order/payment.");
+                return Unauthorized("You do not own this order.");
             }
         }
     }

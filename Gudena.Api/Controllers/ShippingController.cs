@@ -61,7 +61,7 @@ namespace Gudena.Api.Controllers
             if (shipping == null)
                 return NotFound();
 
-            // Verify ownership via order
+            // Verify ownership
             var orderItem = shipping.OrderItem;
             if (orderItem == null || orderItem.Order == null)
                 return BadRequest("Shipping is not linked to a valid order.");
@@ -73,7 +73,7 @@ namespace Gudena.Api.Controllers
             }
             catch (UnauthorizedAccessException)
             {
-                return Unauthorized("You do not own this shipping/order.");
+                return Unauthorized("You do not own this order.");
             }
 
             // Prevent buyer changes after "Ordered" status
@@ -87,8 +87,7 @@ namespace Gudena.Api.Controllers
             shipping.DeliveryOption = dto.DeliveryOption;
             shipping.ShippingNumbers = dto.ShippingNumbers;
             shipping.ShippingCost = dto.ShippingCost;
-            // You may or may not allow status change here depending on business rules
-
+            
             var updated = await _shippingService.UpdateShippingAsync(shipping);
             return Ok(updated);
         }
