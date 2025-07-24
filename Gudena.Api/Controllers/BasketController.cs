@@ -1,6 +1,7 @@
 using System.Security.Claims;
 using Gudena.Api.Services;
 using Gudena.Api.DTOs;
+using Gudena.Api.Exceptions;
 using Gudena.Data;
 using Gudena.Data.Entities;
 using Microsoft.AspNetCore.Mvc;
@@ -39,13 +40,19 @@ public class BasketController : ControllerBase
     {
         try
         {
-            Basket basket = await _basketService.AddProductToBasketAsync(basketItemDto.BasketId, basketItemDto.ProductId, basketItemDto.Amount);
+            Basket basket = await _basketService.AddProductToBasketAsync(basketItemDto.BasketId,
+                basketItemDto.ProductId, basketItemDto.Amount);
             return Ok(basket);
         }
-        catch (Exception e)
+        catch (ResourceNotFoundException e)
         {
             Console.WriteLine(e);
             return NotFound();
+        }
+        catch (BasketExceedsStockException e)
+        {
+            Console.WriteLine(e);
+            return BadRequest(e.Message);
         }
     }
 
@@ -58,10 +65,15 @@ public class BasketController : ControllerBase
                 basketItemDto.Amount);
             return Ok(basket);
         }
-        catch (Exception e)
+        catch (ResourceNotFoundException e)
         {
             Console.WriteLine(e);
             return NotFound();
+        }
+        catch (BasketExceedsStockException e)
+        {
+            Console.WriteLine(e);
+            return BadRequest(e.Message);
         }
     }
 
@@ -73,7 +85,7 @@ public class BasketController : ControllerBase
             await _basketService.DestroyBasketAsync(id);
             return Ok();
         }
-        catch (Exception e)
+        catch (ResourceNotFoundException e)
         {
             Console.WriteLine(e);
             return NotFound();
