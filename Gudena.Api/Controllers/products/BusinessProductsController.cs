@@ -66,6 +66,7 @@ namespace Gudena.Api.Controllers
             if (category == null)
                 return BadRequest("Invalid category ID");
 
+            // 1. Create product
             var product = new Product
             {
                 Name = dto.Name,
@@ -82,10 +83,24 @@ namespace Gudena.Api.Controllers
             };
 
             _context.Products.Add(product);
-            await _context.SaveChangesAsync();
+            await _context.SaveChangesAsync(); // Save to generate Product.Id
 
-            return Ok("Product created successfully");
+            // 2. Add media URLs if provided
+            if (dto.MediaUrls != null && dto.MediaUrls.Any())
+            {
+                var mediaList = dto.MediaUrls.Select(url => new Media
+                {
+                    ProductId = product.Id,
+                    MediaUrl = url
+                }).ToList();
+
+                _context.Media.AddRange(mediaList);
+                await _context.SaveChangesAsync();
+            }
+
+            return Ok("Product with media created successfully");
         }
+
 
         /// <summary>
         /// Update product owned by the logged-in business

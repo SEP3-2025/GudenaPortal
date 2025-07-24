@@ -20,7 +20,11 @@ using System.ComponentModel.DataAnnotations;
         public string LastName { get; set; }
 
         [Required]
-        public string Address { get; set; }
+        public string City { get; set; }
+        [Required]
+        public string Street { get; set; }
+        [Required]
+        public string PostalCode { get; set; }
 
         [Required]
         public string PhoneNumber { get; set; }

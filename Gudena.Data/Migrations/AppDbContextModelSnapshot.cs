@@ -30,11 +30,11 @@ namespace Gudena.Data.Migrations
 
                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
 
-                    b.Property<string>("Address")
+                    b.Property<string>("ApplicationUserId")
                         .IsRequired()
                         .HasColumnType("text");
 
-                    b.Property<string>("ApplicationUserId")
+                    b.Property<string>("City")
                         .IsRequired()
                         .HasColumnType("text");
 
@@ -50,6 +50,14 @@ namespace Gudena.Data.Migrations
                         .HasColumnType("text");
 
                     b.Property<string>("PhoneNumber")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<string>("PostalCode")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<string>("Street")
                         .IsRequired()
                         .HasColumnType("text");
 

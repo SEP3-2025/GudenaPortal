@@ -44,7 +44,9 @@ public class AuthController : ControllerBase
         {
             FirstName = dto.FirstName,
             LastName = dto.LastName,
-            Address = dto.Address,
+            City = dto.City,
+            Street = dto.Street,
+            PostalCode = dto.PostalCode,
             PhoneNumber = dto.PhoneNumber,
             ApplicationUserId = user.Id
         };
@@ -74,7 +76,9 @@ public class AuthController : ControllerBase
         {
             FirstName = dto.FirstName,
             LastName = dto.LastName,
-            Address = dto.Address,
+            City = dto.City,
+            Street = dto.Street,
+            PostalCode = dto.PostalCode,
             PhoneNumber = dto.PhoneNumber,
             CompanyName = dto.CompanyName,
             ApplicationUserId = user.Id
