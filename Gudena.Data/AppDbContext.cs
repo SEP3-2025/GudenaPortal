@@ -102,5 +102,13 @@ public class AppDbContext : IdentityDbContext<ApplicationUser>
             .WithOne(pr => pr.OrderItem)
             .HasForeignKey<ProductReturn>(pr => pr.OrderItemId)
             .OnDelete(DeleteBehavior.Cascade);
+
+        //Order to Payment (1:1)
+        modelBuilder.Entity<Order>()
+            .HasOne(o => o.Payment)
+            .WithOne(p => p.Order)
+            .HasForeignKey<Payment>(p => p.OrderId)
+            .OnDelete(DeleteBehavior.Cascade);
+
     }
 }

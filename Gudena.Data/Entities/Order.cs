@@ -15,5 +15,5 @@ public class Order
     public ApplicationUser ApplicationUser { get; set; }
     public Shipping Shipping { get; set; }
     public ICollection<OrderItem> OrderItems { get; set; }
-    public ICollection<Payment> Payments { get; set; }
+    public Payment? Payment { get; set; }
 }

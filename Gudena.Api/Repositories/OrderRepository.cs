@@ -18,11 +18,11 @@ public class OrderRepository : IOrderRepository
         _productRepository = productRepository;
         _basketRepository = basketRepository;
     }
-    
+
     public async Task<Order> GetOrderAsync(string userId, int orderId)
     {
         Order? order = await _context.Orders
-            .Include(o => o.Payments)
+            .Include(o => o.Payment)
             .Include(o => o.Shipping)
             .Include(o => o.OrderItems)
             .ThenInclude(oi => oi.Product)
@@ -37,7 +37,7 @@ public class OrderRepository : IOrderRepository
     public async Task<ICollection<Order>> GetOrdersAsync(string userId)
     {
         var orders = await _context.Orders
-            .Include(o => o.Payments)
+            .Include(o => o.Payment)
             .Include(o => o.Shipping)
             .Include(o => o.OrderItems)
             .ThenInclude(oi => oi.Product)
@@ -128,4 +128,22 @@ public class OrderRepository : IOrderRepository
         await _context.SaveChangesAsync();
         return order;
     }
+    
+    public async Task<Order?> GetOrderByIdAsync(string userId, int orderId)
+    {
+    var order = await _context.Orders
+        .Include(o => o.Payment)
+        .Include(o => o.Shipping)
+        .Include(o => o.OrderItems)
+            .ThenInclude(oi => oi.Product)
+        .FirstOrDefaultAsync(o => o.Id == orderId);
+
+    if (order == null)
+        return null;
+
+    if (order.ApplicationUserId != userId)
+        throw new UserDoesNotOwnResourceException("Order does not belong to this user");
+
+    return order;
+    }   
 }
