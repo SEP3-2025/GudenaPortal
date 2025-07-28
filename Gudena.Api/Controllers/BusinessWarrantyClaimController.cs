@@ -1,5 +1,6 @@
 using Gudena.Api.DTOs;
 using Gudena.Api.Exceptions;
+using Gudena.Api.Services;
 using Gudena.Api.Services.Interfaces;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -9,33 +10,28 @@ namespace Gudena.Api.Controllers;
 [ApiController]
 [Route("api/[controller]")]
 [Authorize(Policy = "BusinessOnly")]
-public class BusinessOrderController : ControllerBase
+public class BusinessWarrantyClaimController : ControllerBase
 {
-    private readonly IBusinessOrderService _service;
+    private readonly IBusinessWarrantyClaimService _service;
 
-    public BusinessOrderController(IBusinessOrderService service)
+    public BusinessWarrantyClaimController(IBusinessWarrantyClaimService service)
     {
         _service = service;
     }
 
     [HttpGet]
-    public async Task<ActionResult<List<BusinessOrderDto>>> GetBusinessOrders()
+    public async Task<ActionResult<List<BusinessWarrantyClaimDto>>> GetWarrantyClaims()
     {
-        // Extract Business UserId from claims
         var businessId = User.FindFirst("uid")?.Value;
-        var userId = User.FindFirst("uid")?.Value;
-        Console.Out.WriteLine($"Business ID: {businessId}");
         if (string.IsNullOrEmpty(businessId))
-        {
             return Unauthorized();
-        }
 
-        var orders = await _service.GetBusinessOrdersAsync(businessId);
-        return Ok(orders);
+        var claims = await _service.GetWarrantyClaimsAsync(businessId);
+        return Ok(claims);
     }
 
-    [HttpPut("{orderId}/status")]
-    public async Task<IActionResult> UpdateOrderStatus(int orderId, [FromBody] UpdateOrderStatusDto dto)
+    [HttpPut("{id}/status")]
+    public async Task<IActionResult> UpdateWarrantyClaimStatus(int id, [FromBody] UpdateBusinessWarrantyClaimStatusDto dto)
     {
         var businessId = User.FindFirst("uid")?.Value;
         if (string.IsNullOrEmpty(businessId))
@@ -43,7 +39,7 @@ public class BusinessOrderController : ControllerBase
 
         try
         {
-            await _service.UpdateOrderStatusAsync(orderId, businessId, dto.Status);
+            await _service.UpdateWarrantyClaimStatusAsync(id, businessId, dto.Status);
             return NoContent();
         }
         catch (BusinessOwnershipException ex)
@@ -59,5 +55,4 @@ public class BusinessOrderController : ControllerBase
             return BadRequest(ex.Message);
         }
     }
-    
 }

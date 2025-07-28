@@ -1,10 +1,8 @@
+using Gudena.Api.DTOs;
+using Gudena.Api.Repositories;
 using Gudena.Api.Services.Interfaces;
 
 namespace Gudena.Api.Services;
-
-using Gudena.Api.DTOs;
-using Gudena.Api.Repositories;
-
 
 public class BusinessOrderService : IBusinessOrderService
 {
@@ -32,7 +30,7 @@ public class BusinessOrderService : IBusinessOrderService
     {
         // Validate status before hitting the repository
         if (!AllowedStatuses.Contains(status))
-            throw new ArgumentException("Invalid status value. Allowed values are: Processing, Shipped, Completed, Cancelled");
+            throw new ArgumentException($"Invalid status value. Allowed: {string.Join(", ", AllowedStatuses)}");
 
         return await _repository.UpdateOrderStatusAsync(orderId, businessId, status);
     }

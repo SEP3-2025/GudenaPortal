@@ -1,4 +1,5 @@
 using Gudena.Api.DTOs;
+using Gudena.Api.Exceptions;
 using Gudena.Data;
 
 using Microsoft.EntityFrameworkCore;
@@ -49,8 +50,11 @@ public class BusinessOrderRepository : IBusinessOrderRepository
             .FirstOrDefaultAsync(o => o.Id == orderId 
                                       && o.OrderItems.Any(oi => oi.Product.OwnerId == businessId));
 
-        if (order == null) 
-            return false;
+        if (order == null)
+            throw new BusinessOwnershipException("This order does not belong to your business.");
+
+        if (order.Status == status)
+            throw new BusinessInvalidStatusChangeException("The order already has this status.");
 
         order.Status = status;
         await _context.SaveChangesAsync();
