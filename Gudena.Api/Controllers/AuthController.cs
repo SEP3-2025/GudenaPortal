@@ -103,7 +103,7 @@ public class AuthController : ControllerBase
         {
             new Claim(JwtRegisteredClaimNames.Sub, user.Email),
             new Claim("uid", user.Id),
-            new Claim("userType", user.UserType)
+            new Claim("UserType", user.UserType)
         };
 
         var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_config["Jwt:Key"]));
