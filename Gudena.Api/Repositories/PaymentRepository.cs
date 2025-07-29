@@ -54,5 +54,21 @@ namespace Gudena.Api.Repositories
                 await _context.SaveChangesAsync();
             }
         }
+        public async Task<Payment?> GetPaymentByIdAndUserIdAsync(int paymentId, string userId)
+        {
+            return await _context.Payments
+                .Include(p => p.Order) // Include related Order to access ApplicationUserId
+                .AsNoTracking()
+                .FirstOrDefaultAsync(p => p.Id == paymentId && p.Order.ApplicationUserId == userId);
+        }
+
+        public async Task<IEnumerable<Payment>> GetPaymentsByOrderIdAndUserIdAsync(int orderId, string userId)
+        {
+            return await _context.Payments
+                .Include(p => p.Order)
+                .Where(p => p.OrderId == orderId && p.Order.ApplicationUserId == userId)
+                .AsNoTracking()
+                .ToListAsync();
+        }
     }
 }

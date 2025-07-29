@@ -42,5 +42,16 @@ namespace Gudena.Api.Services
             // Save the update
             return await _paymentRepository.UpdatePaymentAsync(payment);
         }
+
+        public async Task<Payment?> GetPaymentByIdAndUserIdAsync(int paymentId, string userId)
+        {
+            return await _paymentRepository.GetPaymentByIdAndUserIdAsync(paymentId, userId);
+        }
+
+        public async Task<IEnumerable<Payment>> GetPaymentsByOrderIdAndUserIdAsync(int orderId, string userId)
+        {
+            return await _paymentRepository.GetPaymentsByOrderIdAndUserIdAsync(orderId, userId);
+}
+
     }
 }

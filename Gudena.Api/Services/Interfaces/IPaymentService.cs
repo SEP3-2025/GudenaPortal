@@ -12,6 +12,7 @@ namespace Gudena.Api.Services
         Task<Payment> UpdatePaymentAsync(Payment payment);
         // Removed DeletePaymentAsync as per your requirements
         Task<Payment> RefundPaymentAsync(Payment payment);
-        
+        Task<Payment?> GetPaymentByIdAndUserIdAsync(int paymentId, string userId);
+        Task<IEnumerable<Payment>> GetPaymentsByOrderIdAndUserIdAsync(int orderId, string userId);
     }
 }

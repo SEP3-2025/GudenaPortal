@@ -22,21 +22,31 @@ namespace Gudena.Api.Controllers
         [HttpGet("{id}")]
         public async Task<ActionResult<Payment>> GetPaymentById(int id)
         {
-            var payment = await _paymentService.GetPaymentByIdAsync(id);
+            var userId = User.FindFirst("uid")?.Value;
+            if (userId == null) return Unauthorized();
+
+            var payment = await _paymentService.GetPaymentByIdAndUserIdAsync(id, userId);
             if (payment == null) return NotFound();
+
             return Ok(payment);
         }
 
         [HttpGet("order/{orderId}")]
         public async Task<ActionResult<IEnumerable<Payment>>> GetPaymentsByOrderId(int orderId)
         {
-            var payments = await _paymentService.GetPaymentsByOrderIdAsync(orderId);
+            var userId = User.FindFirst("uid")?.Value;
+            if (userId == null) return Unauthorized();
+
+            var payments = await _paymentService.GetPaymentsByOrderIdAndUserIdAsync(orderId, userId);
             return Ok(payments);
         }
 
         [HttpPost]
         public async Task<ActionResult<Payment>> CreatePayment([FromBody] PaymentDto dto)
         {
+            var userId = User.FindFirst("uid")?.Value;
+            if (userId == null) return Unauthorized();
+
             var payment = new Payment
             {
                 PaymentMethod = dto.PaymentMethod,
@@ -53,7 +63,10 @@ namespace Gudena.Api.Controllers
         [HttpPut("{id}")]
         public async Task<ActionResult<Payment>> UpdatePayment(int id, [FromBody] PaymentDto dto)
         {
-            var existingPayment = await _paymentService.GetPaymentByIdAsync(id);
+            var userId = User.FindFirst("uid")?.Value;
+            if (userId == null) return Unauthorized();
+
+            var existingPayment = await _paymentService.GetPaymentByIdAndUserIdAsync(id, userId);
             if (existingPayment == null) return NotFound();
 
             existingPayment.PaymentMethod = dto.PaymentMethod;
@@ -69,12 +82,11 @@ namespace Gudena.Api.Controllers
         [HttpPost("{id}/refund")]
         public async Task<ActionResult<Payment>> RefundPayment(int id)
         {
-            var payment = await _paymentService.GetPaymentByIdAsync(id);
-            if (payment == null) return NotFound();
+            var userId = User.FindFirst("uid")?.Value;
+            if (userId == null) return Unauthorized();
 
-            var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
-            if (payment.Order.ApplicationUserId != userId)
-                return Forbid("You do not have permission to refund this payment.");
+            var payment = await _paymentService.GetPaymentByIdAndUserIdAsync(id, userId);
+            if (payment == null) return NotFound();
 
             if (payment.PaymentStatus == "Refunded")
                 return BadRequest("Payment has already been refunded.");
