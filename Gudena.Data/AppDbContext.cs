@@ -110,5 +110,12 @@ public class AppDbContext : IdentityDbContext<ApplicationUser>
             .HasForeignKey<Payment>(p => p.OrderId)
             .OnDelete(DeleteBehavior.Cascade);
 
+        // Order to Shipping (1:M)
+        modelBuilder.Entity<Order>()
+            .HasMany(o => o.Shippings)
+            .WithOne(s => s.Order)
+            .HasForeignKey(s => s.OrderId)
+            .OnDelete(DeleteBehavior.Cascade);
+
     }
 }

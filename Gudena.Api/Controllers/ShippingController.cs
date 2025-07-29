@@ -5,6 +5,7 @@ using Microsoft.AspNetCore.Mvc;
 using System.Collections.Generic;
 using System.Security.Claims;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Authorization;
 
 namespace Gudena.Api.Controllers
 {
@@ -41,6 +42,7 @@ namespace Gudena.Api.Controllers
         }
 
         [HttpPost]
+        [Authorize(Policy = "BusinessOnly")] 
         public async Task<ActionResult<Shipping>> CreateShipping([FromBody] ShippingDto dto)
         {
             var userId = User.FindFirst("uid")?.Value;
@@ -58,6 +60,7 @@ namespace Gudena.Api.Controllers
         }
 
         [HttpPut("{id}")]
+        [Authorize(Policy = "BusinessOnly")] 
         public async Task<ActionResult<Shipping>> UpdateShipping(int id, [FromBody] ShippingDto dto)
         {
             var existingShipping = await _shippingService.GetShippingByIdAsync(id);

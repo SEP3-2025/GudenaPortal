@@ -23,7 +23,7 @@ public class OrderRepository : IOrderRepository
     {
         Order? order = await _context.Orders
             .Include(o => o.Payment)
-            .Include(o => o.Shipping)
+            .Include(o => o.Shippings)
             .Include(o => o.OrderItems)
             .ThenInclude(oi => oi.Product)
             .FirstOrDefaultAsync(o => o.Id == orderId);
@@ -38,7 +38,7 @@ public class OrderRepository : IOrderRepository
     {
         var orders = await _context.Orders
             .Include(o => o.Payment)
-            .Include(o => o.Shipping)
+            .Include(o => o.Shippings)
             .Include(o => o.OrderItems)
             .ThenInclude(oi => oi.Product)
             .Where(o => o.ApplicationUserId == userId).ToListAsync();
@@ -74,7 +74,7 @@ public class OrderRepository : IOrderRepository
             TotalAmount = orderDto.Total,
             ApplicationUserId = userId,
             //ShippingId = orderDto.ShippingId,
-            Shipping = new Shipping() { DeliveryOption = "Test Delivery", ShippingAddress = "Test address", ShippingNumbers = "SHIP192933" },
+            Shippings = new List<Shipping>() { new Shipping() { DeliveryOption = "Test Delivery", ShippingAddress = "Test address", ShippingNumbers = "SHIP192933" } },
             // TODO: Add paymentId once merged with payment logic
             OrderItems = orderItems
         };
@@ -133,7 +133,7 @@ public class OrderRepository : IOrderRepository
     {
     var order = await _context.Orders
         .Include(o => o.Payment)
-        .Include(o => o.Shipping)
+        .Include(o => o.Shippings)
         .Include(o => o.OrderItems)
             .ThenInclude(oi => oi.Product)
         .FirstOrDefaultAsync(o => o.Id == orderId);

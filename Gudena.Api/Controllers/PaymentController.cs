@@ -4,6 +4,7 @@ using Gudena.Data.Entities;
 using Microsoft.AspNetCore.Mvc;
 using System.Collections.Generic;
 using System.Security.Claims;
+using Microsoft.AspNetCore.Authorization;
 using System.Threading.Tasks;
 
 namespace Gudena.Api.Controllers
@@ -61,6 +62,7 @@ namespace Gudena.Api.Controllers
         }
 
         [HttpPut("{id}")]
+        [Authorize(Policy = "BusinessOnly")] 
         public async Task<ActionResult<Payment>> UpdatePayment(int id, [FromBody] PaymentDto dto)
         {
             var userId = User.FindFirst("uid")?.Value;
@@ -80,6 +82,7 @@ namespace Gudena.Api.Controllers
         }
 
         [HttpPost("{id}/refund")]
+        [Authorize(Policy = "BusinessOnly")] 
         public async Task<ActionResult<Payment>> RefundPayment(int id)
         {
             var userId = User.FindFirst("uid")?.Value;

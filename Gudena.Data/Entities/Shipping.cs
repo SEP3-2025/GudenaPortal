@@ -11,6 +11,6 @@ public class Shipping
     public string ShippingStatus { get; set; } = "Ordered";
     public ICollection<OrderItem> OrderItems { get; set; } = new List<OrderItem>();
 
-    public List<Order> Orders { get; set; }
-
+    public int? OrderId { get; set; }
+    public Order? Order { get; set; }
 }
