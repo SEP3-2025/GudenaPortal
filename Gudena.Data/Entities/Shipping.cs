@@ -8,5 +8,9 @@ public class Shipping
     public string ShippingNumbers { get; set; }
     public decimal ShippingCost { get; set; }
 
-    public ICollection<OrderItem> OrderItems { get; set; } = new List<OrderItem>();
+    public string ShippingStatus { get; set; } = "Ordered";
+    public ICollection<OrderItem> OrderItems { get; set; }
+
+    public int? OrderId { get; set; }
+    public Order? Order { get; set; }
 }

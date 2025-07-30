@@ -13,7 +13,7 @@ public class Order
     public int ShippingId { get; set; }
     [JsonIgnore]
     public ApplicationUser ApplicationUser { get; set; }
-    public Shipping Shipping { get; set; }
+    public ICollection<Shipping> Shippings { get; set; } = new List<Shipping>();
     public ICollection<OrderItem> OrderItems { get; set; }
-    public ICollection<Payment> Payments { get; set; }
+    public ICollection<Payment> Payments { get; set; } = new List<Payment>();
 }

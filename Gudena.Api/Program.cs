@@ -46,6 +46,16 @@ builder.Services.AddAuthentication(options =>
     };
 });
 
+// Add CORS policy
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy("AllowAll",
+        builder => builder
+            .AllowAnyOrigin()
+            .AllowAnyMethod()
+            .AllowAnyHeader());
+});
+
 // Add services
 builder.Services.AddControllers()
     .AddJsonOptions(j => j.JsonSerializerOptions.ReferenceHandler = ReferenceHandler.Preserve);
@@ -70,6 +80,10 @@ builder.Services.AddScoped<IBusinessProductReturnRepository, BusinessProductRetu
 builder.Services.AddScoped<IBusinessProductReturnService, BusinessProductReturnService>();
 builder.Services.AddScoped<IBusinessWarrantyClaimRepository, BusinessWarrantyClaimRepository>();
 builder.Services.AddScoped<IBusinessWarrantyClaimService, BusinessWarrantyClaimService>();
+builder.Services.AddScoped<IShippingRepository, ShippingRepository>();
+builder.Services.AddScoped<IShippingService, ShippingService>();
+builder.Services.AddScoped<IPaymentRepository, PaymentRepository>();
+builder.Services.AddScoped<IPaymentService, PaymentService>();
 
 // Add Swagger with JWT support
 builder.Services.AddEndpointsApiExplorer();
@@ -123,6 +137,8 @@ if (app.Environment.IsDevelopment())
 }
 
 app.UseHttpsRedirection();
+
+app.UseCors("AllowAll");
 
 app.UseAuthentication();
 app.UseAuthorization();

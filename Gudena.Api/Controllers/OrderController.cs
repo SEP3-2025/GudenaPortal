@@ -4,9 +4,11 @@ using Gudena.Api.DTOs;
 using Gudena.Data;
 using Gudena.Data.Entities;
 using Gudena.Api.Exceptions;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.IdentityModel.Tokens;
 
 namespace Gudena.Api.Controllers;
 
@@ -16,11 +18,13 @@ public class OrderController : ControllerBase
 {
     private readonly IOrderService _orderService;
     private readonly UserManager<ApplicationUser> _userManager;
-
-    public OrderController(IOrderService orderService, UserManager<ApplicationUser> userManager)
+    private readonly IPaymentService _paymentService;
+    
+    public OrderController(IOrderService orderService, UserManager<ApplicationUser> userManager, IPaymentService paymentService)
     {
         _orderService = orderService;
         _userManager = userManager;
+        _paymentService = paymentService;
     }
 
     [HttpGet]
@@ -68,6 +72,11 @@ public class OrderController : ControllerBase
         {
             Console.WriteLine(e);
             return BadRequest(e.Message);
+        }
+        catch (UnpaidException e)
+        {
+            Console.WriteLine(e);
+            return StatusCode(402, e.Message); // Payment Required
         }
     }
 
@@ -123,5 +132,51 @@ public class OrderController : ControllerBase
             Console.WriteLine($"Order cannot be cancelled as it has been processed: {e}");
             return Problem();
         }
+    }
+    
+    [HttpPost("{id}/refund")]
+    [Authorize(Policy = "BusinessOnly")]
+    public async Task<IActionResult> IssueRefund(int id, decimal amount)
+    {
+        var userId = User.FindFirst("uid")?.Value;
+        if (userId.IsNullOrEmpty())
+            return Unauthorized();
+
+        if (amount <= 0)
+        {
+            Console.WriteLine($"User {userId} attempted to refund {amount} on order {id}");
+            return BadRequest($"Refund amount must be a positive non zero value");
+        }
+        
+        var order = await _orderService.GetOrderAsync(userId, id);
+        if (order == null)
+            return NotFound("Order not found");
+
+        if (!order.OrderItems.Any(o => o.Product.OwnerId == userId))
+            return Forbid(); // User has no relation to the order
+
+        decimal refundableAmount = order.OrderItems.Where(o => o.Product.OwnerId == userId)
+            .Sum(o => o.PricePerUnit * o.Quantity);
+        var shipping = order.Shippings.FirstOrDefault(s => s.ShippingCost > 0 && s.OrderItems.Any(o => o.Product.OwnerId == userId));
+        if (shipping != null)
+            refundableAmount += shipping.ShippingCost;
+        decimal refundedAmount = order.Payments.Where(p => p.PayingUserId == userId).Sum(p => p.Amount);
+
+        if (refundableAmount - refundedAmount - amount < 0)
+            return BadRequest($"Refund exceeds refundable amount {refundableAmount - refundedAmount}");
+
+        var refund = new Payment()
+        {
+            OrderId = order.Id,
+            Amount = amount,
+            PaymentMethod = "Refund",
+            PayingUserId = userId,
+            TransactionDate = DateTime.Now,
+            PaymentStatus = "Completed",
+            TransactionId = $"Gudena-{Guid.NewGuid()}"
+        };
+        refund = await _paymentService.CreatePaymentAsync(refund);
+        
+        return Ok(refund);
     }
 }
