@@ -12,8 +12,8 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace Gudena.Data.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    [Migration("20250729144333_LinkingOrderToShipping")]
-    partial class LinkingOrderToShipping
+    [Migration("20250730032658_Missing Entities in Payment and OrderItem and added Order-Payment relation")]
+    partial class MissingEntitiesinPaymentandOrderItemandaddedOrderPaymentrelation
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -331,6 +331,10 @@ namespace Gudena.Data.Migrations
                     b.Property<int>("Quantity")
                         .HasColumnType("integer");
 
+                    b.Property<string>("Status")
+                        .IsRequired()
+                        .HasColumnType("text");
+
                     b.HasKey("Id");
 
                     b.HasIndex("OrderId");
@@ -351,8 +355,11 @@ namespace Gudena.Data.Migrations
                     b.Property<decimal>("Amount")
                         .HasColumnType("numeric");
 
-                    b.Property<int>("OrderId")
+                    b.Property<int?>("OrderId")
                         .HasColumnType("integer");
+
+                    b.Property<string>("PayingUserId")
+                        .HasColumnType("text");
 
                     b.Property<string>("PaymentMethod")
                         .IsRequired()
@@ -365,10 +372,15 @@ namespace Gudena.Data.Migrations
                     b.Property<DateTime>("TransactionDate")
                         .HasColumnType("timestamp with time zone");
 
+                    b.Property<string>("TransactionId")
+                        .IsRequired()
+                        .HasColumnType("text");
+
                     b.HasKey("Id");
 
-                    b.HasIndex("OrderId")
-                        .IsUnique();
+                    b.HasIndex("OrderId");
+
+                    b.HasIndex("PayingUserId");
 
                     b.ToTable("Payments");
                 });
@@ -476,7 +488,7 @@ namespace Gudena.Data.Migrations
                         .IsRequired()
                         .HasColumnType("text");
 
-                    b.Property<int>("OrderId")
+                    b.Property<int?>("OrderId")
                         .HasColumnType("integer");
 
                     b.Property<string>("ShippingAddress")
@@ -796,12 +808,17 @@ namespace Gudena.Data.Migrations
             modelBuilder.Entity("Gudena.Data.Entities.Payment", b =>
                 {
                     b.HasOne("Gudena.Data.Entities.Order", "Order")
-                        .WithOne("Payment")
-                        .HasForeignKey("Gudena.Data.Entities.Payment", "OrderId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                        .WithMany("Payments")
+                        .HasForeignKey("OrderId")
+                        .OnDelete(DeleteBehavior.SetNull);
+
+                    b.HasOne("Gudena.Data.Entities.ApplicationUser", "PayingUser")
+                        .WithMany()
+                        .HasForeignKey("PayingUserId");
 
                     b.Navigation("Order");
+
+                    b.Navigation("PayingUser");
                 });
 
             modelBuilder.Entity("Gudena.Data.Entities.Product", b =>
@@ -847,8 +864,7 @@ namespace Gudena.Data.Migrations
                     b.HasOne("Gudena.Data.Entities.Order", "Order")
                         .WithMany("Shippings")
                         .HasForeignKey("OrderId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                        .OnDelete(DeleteBehavior.Cascade);
 
                     b.Navigation("Order");
                 });
@@ -969,7 +985,7 @@ namespace Gudena.Data.Migrations
                 {
                     b.Navigation("OrderItems");
 
-                    b.Navigation("Payment");
+                    b.Navigation("Payments");
 
                     b.Navigation("Shippings");
                 });

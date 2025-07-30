@@ -105,10 +105,10 @@ public class AppDbContext : IdentityDbContext<ApplicationUser>
 
         //Order to Payment (1:1)
         modelBuilder.Entity<Order>()
-            .HasOne(o => o.Payment)
+            .HasMany(o => o.Payments)
             .WithOne(p => p.Order)
-            .HasForeignKey<Payment>(p => p.OrderId)
-            .OnDelete(DeleteBehavior.Cascade);
+            .HasForeignKey(p => p.OrderId)
+            .OnDelete(DeleteBehavior.SetNull);
 
         // Order to Shipping (1:M)
         modelBuilder.Entity<Order>()
@@ -116,6 +116,5 @@ public class AppDbContext : IdentityDbContext<ApplicationUser>
             .WithOne(s => s.Order)
             .HasForeignKey(s => s.OrderId)
             .OnDelete(DeleteBehavior.Cascade);
-
     }
 }
