@@ -69,7 +69,7 @@ public class OrderRepository : IOrderRepository
                 throw new OrderExceedsStockException($"Attempted to order {basketItem.Amount} while stock is {product.Stock} for product {basketItem.ProductId}");
             }
 
-            var shippingDto = orderDto.Shipping.FirstOrDefault(s => s.SellerId == product.OwnerId);
+            var shippingDto = orderDto.Shipping.FirstOrDefault(s => s.BusinessId == product.OwnerId);
             int? shippingId = shippingDto == null ? null : shippingDto.ShippingId;
             List<Shipping> orderItemShippings = new List<Shipping>();
             if (shippingId != null)
