@@ -20,17 +20,23 @@ public class CategoryRepository : ICategoryRepository
 
     public async Task<ICollection<Category>> GetRootCategoriesAsync()
     {
-        return await _context.Categories.Where(c => c.ParentCategory == null).ToListAsync();
+        return await _context.Categories.Where(c => c.ParentCategory == null)
+            .Include(c => c.Products)
+            .ToListAsync();
     }
 
     public async Task<ICollection<Category>> GetAllChildCategoriesAsync(int parentCategoryId)
     {
-        return await _context.Categories.Where(c => c.ParentCategoryId == parentCategoryId).ToListAsync();
+        return await _context.Categories
+            .Include(c => c.Products)
+            .Where(c => c.ParentCategoryId == parentCategoryId).ToListAsync();
     }
 
     public async Task<Category> GetCategoryByIdAsync(int id)
     {
-        return await _context.Categories.FindAsync(id);
+        return await _context.Categories
+            .Include(c => c.Products)
+            .FirstOrDefaultAsync(c => c.Id == id);
     }
     
     public async Task<ICollection<Product>> GetProductsByCategoryIdAsync(int categoryId)
