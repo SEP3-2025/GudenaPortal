@@ -49,9 +49,9 @@ public class BasketRepository : IBasketRepository
         }
     }
 
-    public async Task<Basket> AddProductToBasketAsync(int basketId, int productId, int amount)
+    public async Task<Basket> AddProductToBasketAsync(string userId, int productId, int amount)
     {
-        Basket basket = await RetrieveBasketAsync(null, basketId);
+        Basket basket = await RetrieveBasketAsync(userId, -1);
         if (basket == null)
             throw new ResourceNotFoundException("Basket not found");
         BasketItem? basketItem = basket.BasketItems.FirstOrDefault(bi => bi.ProductId == productId);
@@ -80,11 +80,11 @@ public class BasketRepository : IBasketRepository
         return basket;
     }
 
-    public async Task<Basket> UpdateProductAmountAsync(int basketId, int productId, int amount)
+    public async Task<Basket> UpdateProductAmountAsync(string userId, int productId, int amount)
     {
         if (amount == 0) // If the amount is 0, remove the basketItem
-            return await RemoveProductFromBasketAsync(basketId, productId);
-        Basket basket = await RetrieveBasketAsync(null, basketId);
+            return await RemoveProductFromBasketAsync(userId, productId);
+        Basket basket = await RetrieveBasketAsync(userId, -1);
         if (basket == null)
             throw new ResourceNotFoundException("Basket not found");
         if (basket.BasketItems == null)
@@ -102,9 +102,9 @@ public class BasketRepository : IBasketRepository
         return basket;
     }
 
-    public async Task<Basket> RemoveProductFromBasketAsync(int basketId, int productId)
+    public async Task<Basket> RemoveProductFromBasketAsync(string userId, int productId)
     {
-        Basket basket = await RetrieveBasketAsync(null, basketId);
+        Basket basket = await RetrieveBasketAsync(userId, -1);
         if (basket == null)
             throw new ResourceNotFoundException("Basket not found");
         BasketItem? basketItem = basket.BasketItems.FirstOrDefault(bi => bi.ProductId == productId);
@@ -115,9 +115,9 @@ public class BasketRepository : IBasketRepository
         return basket;
     }
 
-    public async Task DestroyBasketAsync(int basketId)
+    public async Task DestroyBasketAsync(string userId)
     {
-        Basket basket = await RetrieveBasketAsync(null, basketId);
+        Basket basket = await RetrieveBasketAsync(userId, -1);
         if (basket == null)
             throw new ResourceNotFoundException("Basket not found");
         _context.Remove(basket);

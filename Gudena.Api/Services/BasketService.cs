@@ -17,23 +17,23 @@ public class BasketService : IBasketService
         return await _basketRepository.RetrieveBasketAsync(userId, basketId);
     }
 
-    public async Task<Basket> AddProductToBasketAsync(int basketId, int productId, int amount)
+    public async Task<Basket> AddProductToBasketAsync(string userId, int productId, int amount)
     {
-        return await _basketRepository.AddProductToBasketAsync(basketId, productId, amount);
+        return await _basketRepository.AddProductToBasketAsync(userId, productId, amount);
     }
 
-    public async Task<Basket> UpdateProductAmountAsync(int basketId, int productId, int amount)
+    public async Task<Basket> UpdateProductAmountAsync(string userId, int productId, int amount)
     {
-        return await _basketRepository.UpdateProductAmountAsync(basketId, productId, amount);
+        return await _basketRepository.UpdateProductAmountAsync(userId, productId, amount);
     }
 
-    public async Task<Basket> RemoveProductFromBasketAsync(int basketId, int productId)
+    public async Task<Basket> RemoveProductFromBasketAsync(string userId, int productId)
     {
-        return await _basketRepository.RemoveProductFromBasketAsync(basketId, productId);
+        return await _basketRepository.RemoveProductFromBasketAsync(userId, productId);
     }
 
-    public async Task DestroyBasketAsync(int basketId)
+    public async Task DestroyBasketAsync(string userId)
     {
-        await _basketRepository.DestroyBasketAsync(basketId);
+        await _basketRepository.DestroyBasketAsync(userId);
     }
 }

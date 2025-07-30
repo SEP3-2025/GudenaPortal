@@ -103,7 +103,7 @@ public class OrderRepository : IOrderRepository
         };
         _context.Orders.Add(newOrder);
         await _context.SaveChangesAsync();
-        await _basketRepository.DestroyBasketAsync(basket.Id); // Destroy basket
+        await _basketRepository.DestroyBasketAsync(userId); // Destroy basket
         return newOrder;
     }
 

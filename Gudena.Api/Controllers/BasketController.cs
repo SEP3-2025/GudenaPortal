@@ -38,9 +38,11 @@ public class BasketController : ControllerBase
     [HttpPost]
     public async Task<ActionResult<Basket>> CreateBasketAsync(BasketItemDto basketItemDto)
     {
+        // Get userId
+        var userId = User.FindFirst("uid")?.Value;
         try
         {
-            Basket basket = await _basketService.AddProductToBasketAsync(basketItemDto.BasketId,
+            Basket basket = await _basketService.AddProductToBasketAsync(userId,
                 basketItemDto.ProductId, basketItemDto.Amount);
             return Ok(basket);
         }
@@ -59,9 +61,11 @@ public class BasketController : ControllerBase
     [HttpPut]
     public async Task<ActionResult<Basket>> UpdateBasketAsync(BasketItemDto basketItemDto)
     {
+        // Get userId
+        var userId = User.FindFirst("uid")?.Value;
         try
         {
-            var basket = await _basketService.UpdateProductAmountAsync(basketItemDto.BasketId, basketItemDto.ProductId,
+            var basket = await _basketService.UpdateProductAmountAsync(userId, basketItemDto.ProductId,
                 basketItemDto.Amount);
             return Ok(basket);
         }
@@ -78,11 +82,13 @@ public class BasketController : ControllerBase
     }
 
     [HttpDelete]
-    public async Task<ActionResult<Basket>> DeleteBasketAsync(int id)
+    public async Task<ActionResult<Basket>> DeleteBasketAsync()
     {
+        // Get userId
+        var userId = User.FindFirst("uid")?.Value;
         try
         {
-            await _basketService.DestroyBasketAsync(id);
+            await _basketService.DestroyBasketAsync(userId);
             return Ok();
         }
         catch (ResourceNotFoundException e)
