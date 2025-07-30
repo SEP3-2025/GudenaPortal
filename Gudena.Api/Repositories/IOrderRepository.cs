@@ -11,5 +11,4 @@ public interface IOrderRepository
     public Task<Order> CreateOrderAsync(OrderDto orderDto, string userId);
     public Task<Order> UpdateOrderAsync(OrderUpdateDto orderDto, string userId);
     public Task<Order> CancelOrderAsync(string userId, int orderId);
-    public Task<Order?> GetOrderByIdAsync(string userId, int orderId);
 }

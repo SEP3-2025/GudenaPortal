@@ -42,7 +42,6 @@ namespace Gudena.Api.Controllers
         }
 
         [HttpPost]
-        [Authorize(Policy = "BusinessOnly")] 
         public async Task<ActionResult<Shipping>> CreateShipping([FromBody] ShippingDto dto)
         {
             var userId = User.FindFirst("uid")?.Value;

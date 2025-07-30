@@ -11,33 +11,39 @@ public class OrderRepository : IOrderRepository
     private readonly AppDbContext _context;
     private readonly IProductRepository _productRepository;
     private readonly IBasketRepository _basketRepository;
+    private readonly IShippingRepository _shippingRepository;
+    private readonly IPaymentRepository _paymentRepository;
 
-    public OrderRepository(AppDbContext context, IProductRepository productRepository, IBasketRepository basketRepository)
+    public OrderRepository(AppDbContext context, IProductRepository productRepository, IBasketRepository basketRepository, IShippingRepository shippingRepository, IPaymentRepository paymentRepository)
     {
         _context = context;
         _productRepository = productRepository;
         _basketRepository = basketRepository;
+        _shippingRepository = shippingRepository;
+        _paymentRepository = paymentRepository;
     }
 
     public async Task<Order> GetOrderAsync(string userId, int orderId)
     {
         Order? order = await _context.Orders
-            .Include(o => o.Payment)
+            .Include(o => o.Payments)
             .Include(o => o.Shippings)
+            .ThenInclude(s => s.OrderItems)
+            .ThenInclude(oi => oi.Product)
             .Include(o => o.OrderItems)
             .ThenInclude(oi => oi.Product)
             .FirstOrDefaultAsync(o => o.Id == orderId);
         if (order == null)
-            throw new ResourceNotFoundException($"Order not found {orderId}"); // TODO: Custom exception
-        else if (order.ApplicationUserId != userId)
-            throw new UserDoesNotOwnResourceException("Order does not belong to this user");
+            throw new ResourceNotFoundException($"Order not found {orderId}");
+        else if (order.ApplicationUserId != userId && !order.OrderItems.Any(oi => oi.Product.OwnerId == userId))
+            throw new UserDoesNotOwnResourceException($"Order {orderId} does not belong to this user {userId}");
         return order;
     }
 
     public async Task<ICollection<Order>> GetOrdersAsync(string userId)
     {
         var orders = await _context.Orders
-            .Include(o => o.Payment)
+            .Include(o => o.Payments)
             .Include(o => o.Shippings)
             .Include(o => o.OrderItems)
             .ThenInclude(oi => oi.Product)
@@ -49,6 +55,11 @@ public class OrderRepository : IOrderRepository
     {
         List<OrderItem> orderItems = new List<OrderItem>();
         Basket basket = await _basketRepository.RetrieveBasketAsync(userId, -1);
+        List<Shipping> shippings = new List<Shipping>();
+        Payment payment = await _paymentRepository.GetUnclaimedPaymentByIdAsync(orderDto.PaymentId, userId);
+        if (payment == null)
+            throw new UnpaidException("Payment not found");
+        
         foreach (var basketItem in basket.BasketItems)
         {
             var product = await _productRepository.GetByIdAsync(basketItem.ProductId);
@@ -57,11 +68,24 @@ public class OrderRepository : IOrderRepository
                 Console.WriteLine($"Attempted to order {basketItem.Amount} while stock is {product.Stock} for product {basketItem.ProductId}");
                 throw new OrderExceedsStockException($"Attempted to order {basketItem.Amount} while stock is {product.Stock} for product {basketItem.ProductId}");
             }
+
+            var shippingDto = orderDto.Shipping.FirstOrDefault(s => s.SellerId == product.OwnerId);
+            int? shippingId = shippingDto == null ? null : shippingDto.ShippingId;
+            List<Shipping> orderItemShippings = new List<Shipping>();
+            if (shippingId != null)
+            {
+                var ship = await _shippingRepository.GetShippingByIdAsync(shippingId.Value);
+                shippings.Add(ship);
+                orderItemShippings.Add(ship);
+            }
+            
             OrderItem orderItem = new OrderItem()
             {
                 Product = product,
                 Quantity = basketItem.Amount,
-                PricePerUnit = product.Price
+                PricePerUnit = product.Price,
+                Shippings = orderItemShippings,
+                Status = "Ordered"
             };
             orderItems.Add(orderItem);
             product.Stock -= basketItem.Amount;
@@ -70,12 +94,11 @@ public class OrderRepository : IOrderRepository
         {
             OrderDate = DateTime.Now,
             Status = "Ordered",
-            PaymentMethod = "Test Payment", // TODO: Modify once merged with payment logic
+            PaymentMethod = payment.PaymentMethod,
             TotalAmount = orderDto.Total,
             ApplicationUserId = userId,
-            //ShippingId = orderDto.ShippingId,
-            Shippings = new List<Shipping>() { new Shipping() { DeliveryOption = "Test Delivery", ShippingAddress = "Test address", ShippingNumbers = "SHIP192933" } },
-            // TODO: Add paymentId once merged with payment logic
+            Shippings = shippings,
+            Payments = new List<Payment>() { payment },
             OrderItems = orderItems
         };
         _context.Orders.Add(newOrder);
@@ -128,22 +151,4 @@ public class OrderRepository : IOrderRepository
         await _context.SaveChangesAsync();
         return order;
     }
-    
-    public async Task<Order?> GetOrderByIdAsync(string userId, int orderId)
-    {
-    var order = await _context.Orders
-        .Include(o => o.Payment)
-        .Include(o => o.Shippings)
-        .Include(o => o.OrderItems)
-            .ThenInclude(oi => oi.Product)
-        .FirstOrDefaultAsync(o => o.Id == orderId);
-
-    if (order == null)
-        return null;
-
-    if (order.ApplicationUserId != userId)
-        throw new UserDoesNotOwnResourceException("Order does not belong to this user");
-
-    return order;
-    }   
 }

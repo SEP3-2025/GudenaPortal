@@ -54,7 +54,9 @@ namespace Gudena.Api.Controllers
                 PaymentStatus = dto.PaymentStatus,
                 TransactionDate = dto.TransactionDate,
                 Amount = dto.Amount,
-                OrderId = dto.OrderId
+                OrderId = null,
+                TransactionId = dto.TransactionId,
+                PayingUserId = userId
             };
 
             var createdPayment = await _paymentService.CreatePaymentAsync(payment);
@@ -79,23 +81,6 @@ namespace Gudena.Api.Controllers
 
             var updatedPayment = await _paymentService.UpdatePaymentAsync(existingPayment);
             return Ok(updatedPayment);
-        }
-
-        [HttpPost("{id}/refund")]
-        [Authorize(Policy = "BusinessOnly")] 
-        public async Task<ActionResult<Payment>> RefundPayment(int id)
-        {
-            var userId = User.FindFirst("uid")?.Value;
-            if (userId == null) return Unauthorized();
-
-            var payment = await _paymentService.GetPaymentByIdAndUserIdAsync(id, userId);
-            if (payment == null) return NotFound();
-
-            if (payment.PaymentStatus == "Refunded")
-                return BadRequest("Payment has already been refunded.");
-
-            var refundedPayment = await _paymentService.RefundPaymentAsync(payment);
-            return Ok(refundedPayment);
         }
     }
 }

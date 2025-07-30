@@ -13,6 +13,7 @@ namespace Gudena.Api.Repositories
         Task DeletePaymentAsync(int id);
         Task<Payment?> GetPaymentByIdAndUserIdAsync(int paymentId, string userId);
         Task<IEnumerable<Payment>> GetPaymentsByOrderIdAndUserIdAsync(int orderId, string userId);
+        Task<Payment?> GetUnclaimedPaymentByIdAsync(int id, string userId);
 
     }
 }

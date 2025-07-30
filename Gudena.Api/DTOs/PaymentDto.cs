@@ -7,5 +7,6 @@ namespace Gudena.Api.DTOs
         public DateTime TransactionDate { get; set; }
         public decimal Amount { get; set; }
         public int OrderId { get; set; }
+        public string TransactionId { get; set; }
     }
 }
