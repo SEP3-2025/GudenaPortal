@@ -110,16 +110,43 @@ public class OrderRepository : IOrderRepository
     public async Task<Order> UpdateOrderAsync(OrderUpdateDto orderDto, string userId)
     {
         Order order = await GetOrderAsync(userId, orderDto.Id);
+        decimal refundedAmount = 0;
         order.ShippingId = orderDto.ShippingId;
         foreach (var update in orderDto.OrderItemUpdates)
         {
             var orderItem = order.OrderItems.Single(b => b.Id == update.Id);
             if (orderItem.OrderId != orderDto.Id)
                 throw new UserDoesNotOwnResourceException($"OrderItem {orderItem.Id} does not belong to order {orderDto.Id}");
+            if (orderItem.Status != "Ordered")
+                throw new CannotModifyOrderException($"OrderItem {orderItem.Id} from order {orderDto.Id} cannot be modified due to status {orderItem.Status}");
             if (update.Quantity == 0) // Remove item from order
             {
                 order.OrderItems.Remove(orderItem);
                 orderItem.Product.Stock += orderItem.Quantity; // Return product to Stock
+                decimal refundAmount = orderItem.PricePerUnit * orderItem.Quantity;
+                // If there is no products left from this merchant refund and cancel shipping
+                if (!order.OrderItems.Any(oi => oi.Product.OwnerId == orderItem.Product.OwnerId))
+                {
+                    Shipping shipping =
+                        orderItem.Shippings.FirstOrDefault(s => s.OrderItems.Any(oi => oi.Id == orderItem.Id));
+                    if (shipping != null)
+                    {
+                        refundAmount += shipping.ShippingCost;
+                        shipping.ShippingStatus = "Cancelled";
+                    }
+                }
+                Payment refund = new Payment()
+                {
+                    OrderId = order.Id,
+                    Amount = refundAmount,
+                    PaymentMethod = "Refund",
+                    PayingUserId = orderItem.Product.OwnerId,
+                    TransactionDate = DateTime.Now,
+                    PaymentStatus = "Completed",
+                    TransactionId = $"GudenaPay-{Guid.NewGuid()}"
+                };
+                order.Payments.Add(refund);
+                refundedAmount += refundAmount;
             }
             else
             {
@@ -130,8 +157,36 @@ public class OrderRepository : IOrderRepository
                     throw new OrderExceedsStockException($"Attempted to update order {order.Id} with {update.Quantity} product {update.ProductId} while stock is {orderItem.Product.Stock}");
                 }
                 orderItem.Product.Stock += orderItem.Quantity - update.Quantity; // Update product Stock
+                decimal oldPrice = orderItem.PricePerUnit * orderItem.Quantity;
+                decimal newPrice = update.PricePerUnit * update.Quantity;
+                // If the paid price is higher issue a refund
+                if (oldPrice > newPrice)
+                {
+                    Payment refund = new Payment()
+                    {
+                        OrderId = order.Id,
+                        Amount = oldPrice - newPrice,
+                        PaymentMethod = "Refund",
+                        PayingUserId = orderItem.Product.OwnerId,
+                        TransactionDate = DateTime.Now,
+                        PaymentStatus = "Completed",
+                        TransactionId = $"GudenaPay-{Guid.NewGuid()}"
+                    };
+                    order.Payments.Add(refund);
+                    refundedAmount += refund.Amount;
+                }
                 orderItem.PricePerUnit = update.PricePerUnit;
             }
+        }
+
+        if (order.TotalAmount < orderDto.Total) // If the total price increased, check payment validity
+        {
+            Payment payment = await _paymentRepository.GetUnclaimedPaymentByIdAsync(orderDto.PaymentId, userId);
+            if (payment == null)
+                throw new UnpaidException("Payment not found");
+            if (order.TotalAmount + payment.Amount - refundedAmount != orderDto.Total)
+                throw new UnpaidException($"Payment {payment.Id} is unfit with the order modification, required payment {orderDto.Total - order.TotalAmount + refundedAmount} actual payment {payment.Amount}");
+            order.Payments.Add(payment);
         }
         order.TotalAmount = orderDto.Total;
         await _context.SaveChangesAsync();
@@ -141,12 +196,24 @@ public class OrderRepository : IOrderRepository
     public async Task<Order> CancelOrderAsync(string userId, int orderId)
     {
         Order order = await GetOrderAsync(userId, orderId);
-        if (order.Status != "Ordered")
+        if (order.Status != "Ordered" || order.OrderItems.Any(oi => oi.Status != "Ordered"))
             throw new IncancellableOrderException($"Order {orderId} cannot be cancelled due to status {order.Status}");
         order.Status = "Canceled";
         foreach (OrderItem orderItem in order.OrderItems)
         {
             orderItem.Product.Stock += orderItem.Quantity; // Return product to Stock
+            orderItem.Status = "Cancelled"; // Cancel OrderItem
+            Payment refund = new Payment() // Issue a refund
+            {
+                OrderId = order.Id,
+                Amount = orderItem.PricePerUnit * orderItem.Quantity,
+                PaymentMethod = "Refund",
+                PayingUserId = orderItem.Product.OwnerId,
+                TransactionDate = DateTime.Now,
+                PaymentStatus = "Completed",
+                TransactionId = $"GudenaPay-{Guid.NewGuid()}"
+            };
+            order.Payments.Add(refund);
         }
         await _context.SaveChangesAsync();
         return order;
