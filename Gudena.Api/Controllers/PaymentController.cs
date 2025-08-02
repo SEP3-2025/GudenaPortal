@@ -43,19 +43,26 @@ namespace Gudena.Api.Controllers
         }
 
         [HttpPost]
-        public async Task<ActionResult<Payment>> CreatePayment([FromBody] PaymentDto dto)
+        public async Task<ActionResult<Payment>> CreatePayment([FromBody] PaymentDto dto, [FromServices] IConfiguration configuration)
         {
             var userId = User.FindFirst("uid")?.Value;
             if (userId == null) return Unauthorized();
 
+            var paymentServerResponse = await GudenaPaymentClient.ProcessPaymentAsync(dto.CreditCard);
+
+            if (paymentServerResponse != "APPROVED")
+            {
+                await Console.Error.WriteLineAsync($"Payment declined: {paymentServerResponse}");
+                return BadRequest("Payment was declined by the PaymentServer");
+            }
+
             var payment = new Payment
             {
                 PaymentMethod = dto.PaymentMethod,
-                PaymentStatus = dto.PaymentStatus,
-                TransactionDate = dto.TransactionDate,
+                PaymentStatus = "Completed",
+                TransactionDate = DateTime.UtcNow,
                 Amount = dto.Amount,
-                OrderId = null,
-                TransactionId = dto.TransactionId,
+                TransactionId = Guid.NewGuid().ToString(),
                 PayingUserId = userId
             };
 
