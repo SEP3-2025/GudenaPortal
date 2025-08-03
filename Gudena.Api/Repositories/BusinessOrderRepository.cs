@@ -28,7 +28,7 @@ public class BusinessOrderRepository : IBusinessOrderRepository
                 Status = o.Status,
                 TotalAmount = o.TotalAmount,
                 Items = o.OrderItems
-                    .Where(oi => oi.Product.OwnerId == businessId)
+                    .Where(oi => oi.Product.OwnerId == businessId && oi.Status != "Cancelled")
                     .Select(oi => new BusinessOrderItemDto
                     {
                         ProductId = oi.Product.Id,

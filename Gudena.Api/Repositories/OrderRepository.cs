@@ -121,11 +121,11 @@ public class OrderRepository : IOrderRepository
                 throw new CannotModifyOrderException($"OrderItem {orderItem.Id} from order {orderDto.Id} cannot be modified due to status {orderItem.Status}");
             if (update.Quantity == 0) // Remove item from order
             {
-                order.OrderItems.Remove(orderItem);
+                orderItem.Status = "Cancelled";
                 orderItem.Product.Stock += orderItem.Quantity; // Return product to Stock
                 decimal refundAmount = orderItem.PricePerUnit * orderItem.Quantity;
                 // If there is no products left from this merchant refund and cancel shipping
-                if (!order.OrderItems.Any(oi => oi.Product.OwnerId == orderItem.Product.OwnerId))
+                if (!order.OrderItems.Any(oi => oi.Product.OwnerId == orderItem.Product.OwnerId && oi.Status != "Cancelled"))
                 {
                     Shipping shipping =
                         orderItem.Shippings.FirstOrDefault(s => s.OrderItems.Any(oi => oi.Id == orderItem.Id));
@@ -150,7 +150,15 @@ public class OrderRepository : IOrderRepository
             }
             else
             {
-                orderItem.Quantity = update.Quantity;
+                orderItem.Status = "Cancelled";
+                OrderItem newOrderItem = new OrderItem()
+                {
+                    OrderId = order.Id,
+                    PricePerUnit = update.PricePerUnit,
+                    ProductId = update.ProductId,
+                    Quantity = update.Quantity,
+                    Status = "Ordered"
+                };
                 if (orderItem.Product.Stock < update.Quantity - orderItem.Quantity)
                 {
                     Console.WriteLine($"Attempted to update order {order.Id} with {update.Quantity} product {update.ProductId} while stock is {orderItem.Product.Stock}");
@@ -175,7 +183,7 @@ public class OrderRepository : IOrderRepository
                     order.Payments.Add(refund);
                     refundedAmount += refund.Amount;
                 }
-                orderItem.PricePerUnit = update.PricePerUnit;
+                order.OrderItems.Add(newOrderItem);
             }
         }
 
