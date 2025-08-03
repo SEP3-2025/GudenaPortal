@@ -70,7 +70,8 @@ namespace Gudena.Api.Controllers
             if (ownerAccount == null)
                 return BadRequest("Product owner account details not found.");
             */
-
+            await _shippingService.CleanUpPreviews(userId);
+            
             var ownerInformation = await _basketService.GetBusinessDetailsForBasketAsync(userId);
             List<Shipping> shippings = new List<Shipping>();
             
@@ -92,9 +93,11 @@ namespace Gudena.Api.Controllers
                     PostalCode = buyer.PostalCode,
                     Country = buyer.Country,
                     DeliveryOption = dto.DeliveryOption,
-                    ShippingNumbers = dto.ShippingNumbers,
+                    ShippingNumbers = Guid.NewGuid().ToString(),
                     ShippingCost = Convert.ToDecimal(shippingCost),
-                    ShippingStatus = dto.ShippingStatus
+                    ShippingStatus = "Preview",
+                    ApplicationUserId = userId,
+                    BusinessUserId = business.ApplicationUserId
                 };
                 shippings.Add(await _shippingService.CreateShippingAsync(shipping, new List<int>()));
             }

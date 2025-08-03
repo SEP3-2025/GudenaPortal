@@ -51,12 +51,12 @@ public class OrderRepository : IOrderRepository
         return orders;
     }
 
-    public async Task<Order> CreateOrderAsync(OrderDto orderDto, string userId)
+    public async Task<Order> CreateOrderAsync(string userId)
     {
         List<OrderItem> orderItems = new List<OrderItem>();
         Basket basket = await _basketRepository.RetrieveBasketAsync(userId, -1);
-        List<Shipping> shippings = new List<Shipping>();
-        Payment payment = await _paymentRepository.GetUnclaimedPaymentByIdAsync(orderDto.PaymentId, userId);
+        List<Shipping> shippings = await _shippingRepository.RetrievePreviews(userId);
+        Payment payment = await _paymentRepository.GetUnclaimedPaymentAsync(await GetTotalPrice(userId), userId);
         if (payment == null)
             throw new UnpaidException("Payment not found");
         
@@ -68,15 +68,12 @@ public class OrderRepository : IOrderRepository
                 Console.WriteLine($"Attempted to order {basketItem.Amount} while stock is {product.Stock} for product {basketItem.ProductId}");
                 throw new OrderExceedsStockException($"Attempted to order {basketItem.Amount} while stock is {product.Stock} for product {basketItem.ProductId}");
             }
-
-            var shippingDto = orderDto.Shipping.FirstOrDefault(s => s.BusinessId == product.OwnerId);
-            int? shippingId = shippingDto == null ? null : shippingDto.ShippingId;
+            
             List<Shipping> orderItemShippings = new List<Shipping>();
-            if (shippingId != null)
+            var shipping = shippings.FirstOrDefault(s => s.BusinessUserId == basketItem.Product.OwnerId && s.ShippingStatus == "Preview");
+            if (shipping != null)
             {
-                var ship = await _shippingRepository.GetShippingByIdAsync(shippingId.Value);
-                shippings.Add(ship);
-                orderItemShippings.Add(ship);
+                orderItemShippings.Add(shipping);
             }
             
             OrderItem orderItem = new OrderItem()
@@ -90,18 +87,30 @@ public class OrderRepository : IOrderRepository
             orderItems.Add(orderItem);
             product.Stock -= basketItem.Amount;
         }
+        // Update shipping status
+        foreach (var shipping in shippings)
+        {
+            shipping.ShippingStatus = "Pending";
+        }
+
+        decimal price = orderItems.Sum(oi => oi.Quantity * oi.PricePerUnit) + shippings.Sum(s => s.ShippingCost);
+        
+        if (price != payment.Amount)
+            throw new UnpaidException($"Payment {payment.Id} does not satisfy order cost. Paid {payment.Amount} Price {price}");
+        
         Order newOrder = new Order
         {
             OrderDate = DateTime.Now,
             Status = "Ordered",
             PaymentMethod = payment.PaymentMethod,
-            TotalAmount = orderDto.Total,
+            TotalAmount = payment.Amount,
             ApplicationUserId = userId,
             Shippings = shippings,
             Payments = new List<Payment>() { payment },
             OrderItems = orderItems
         };
         _context.Orders.Add(newOrder);
+        payment.PaymentStatus = "Completed";
         await _context.SaveChangesAsync();
         await _basketRepository.DestroyBasketAsync(userId); // Destroy basket
         return newOrder;
@@ -181,7 +190,7 @@ public class OrderRepository : IOrderRepository
 
         if (order.TotalAmount < orderDto.Total) // If the total price increased, check payment validity
         {
-            Payment payment = await _paymentRepository.GetUnclaimedPaymentByIdAsync(orderDto.PaymentId, userId);
+            Payment payment = await _paymentRepository.GetUnclaimedPaymentAsync(orderDto.Total - order.TotalAmount, userId);
             if (payment == null)
                 throw new UnpaidException("Payment not found");
             if (order.TotalAmount + payment.Amount - refundedAmount != orderDto.Total)
@@ -217,5 +226,14 @@ public class OrderRepository : IOrderRepository
         }
         await _context.SaveChangesAsync();
         return order;
+    }
+    
+    private async Task<decimal> GetTotalPrice(string userId)
+    {
+        Basket basket = await _basketRepository.RetrieveBasketAsync(userId, -1);
+        if (basket.BasketItems.Count < 0)
+            throw new Exception(); // TODO: Custom exception
+        List<Shipping> shippings = await _shippingRepository.RetrievePreviews(userId);
+        return basket.BasketItems.Sum(b => b.Amount * b.Product.Price) + shippings.Sum(s => s.ShippingCost);
     }
 }

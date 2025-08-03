@@ -59,13 +59,13 @@ public class OrderController : ControllerBase
     }
 
     [HttpPost]
-    public async Task<ActionResult<Order>> CreateOrder(OrderDto orderDto)
+    public async Task<ActionResult<Order>> CreateOrder()
     {
         // Get user
         var userId = User.FindFirst("uid")?.Value;
         try
         {
-            Order order = await _orderService.CreateOrderAsync(orderDto, userId);
+            Order order = await _orderService.CreateOrderAsync(userId);
             return Ok(order);
         }
         catch (OrderExceedsStockException e)
