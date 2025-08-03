@@ -73,7 +73,14 @@ namespace Gudena.Api.Services
             product.ReferenceUrl = dto.ReferenceUrl;
             product.isReturnable = dto.IsReturnable;
             product.CategoryId = dto.CategoryId;
-
+            product.Media = dto.MediaUrls != null && dto.MediaUrls.Any()
+                ? dto.MediaUrls.Select(m => new Media()
+                {
+                    ProductId = product.Id,
+                    MediaUrl = m
+                }).ToList()
+                : null;
+            
             await _context.SaveChangesAsync();
             return "Product updated successfully";
         }
