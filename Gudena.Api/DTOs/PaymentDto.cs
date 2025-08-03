@@ -6,7 +6,9 @@ namespace Gudena.Api.DTOs
         public string PaymentStatus { get; set; }
         public DateTime TransactionDate { get; set; }
         public decimal Amount { get; set; }
-        public int OrderId { get; set; }
+        public int? OrderId { get; set; }
         public string TransactionId { get; set; }
+        
+        public CreditCardDto CreditCard { get; set; }
     }
 }

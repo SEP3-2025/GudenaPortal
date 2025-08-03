@@ -35,7 +35,10 @@ namespace Gudena.Api.Repositories
 
         public async Task<Shipping> AddShippingAsync(Shipping shipping, List<int> orderItemIds)
         {
-            if(orderItemIds.Any())
+            // Make sure OrderItems collection is initialized
+            shipping.OrderItems ??= new List<OrderItem>();
+
+            if (orderItemIds.Any())
             {
                 var orderItems = await _context.OrderItems
                     .Where(oi => orderItemIds.Contains(oi.Id))
@@ -58,7 +61,10 @@ namespace Gudena.Api.Repositories
 
             if (existingShipping == null) throw new KeyNotFoundException("Shipping not found");
 
-            existingShipping.ShippingAddress = shipping.ShippingAddress;
+            existingShipping.City = shipping.City;
+            existingShipping.Street = shipping.Street;
+            existingShipping.PostalCode = shipping.PostalCode;
+            existingShipping.Country = shipping.Country;
             existingShipping.DeliveryOption = shipping.DeliveryOption;
             existingShipping.ShippingNumbers = shipping.ShippingNumbers;
             existingShipping.ShippingCost = shipping.ShippingCost;

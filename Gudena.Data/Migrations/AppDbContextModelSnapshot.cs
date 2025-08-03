@@ -70,7 +70,7 @@ namespace Gudena.Data.Migrations
                     b.HasIndex("ApplicationUserId")
                         .IsUnique();
 
-                    b.ToTable("AccountDetails", (string)null);
+                    b.ToTable("AccountDetails");
                 });
 
             modelBuilder.Entity("Basket", b =>
@@ -90,7 +90,7 @@ namespace Gudena.Data.Migrations
                     b.HasIndex("ApplicationUserId")
                         .IsUnique();
 
-                    b.ToTable("Baskets", (string)null);
+                    b.ToTable("Baskets");
                 });
 
             modelBuilder.Entity("Gudena.Data.Entities.ApplicationUser", b =>
@@ -190,7 +190,7 @@ namespace Gudena.Data.Migrations
 
                     b.HasIndex("ProductId");
 
-                    b.ToTable("BasketItems", (string)null);
+                    b.ToTable("BasketItems");
                 });
 
             modelBuilder.Entity("Gudena.Data.Entities.Category", b =>
@@ -220,7 +220,7 @@ namespace Gudena.Data.Migrations
 
                     b.HasIndex("ParentCategoryId");
 
-                    b.ToTable("Categories", (string)null);
+                    b.ToTable("Categories");
                 });
 
             modelBuilder.Entity("Gudena.Data.Entities.Favourite", b =>
@@ -247,7 +247,7 @@ namespace Gudena.Data.Migrations
 
                     b.HasIndex("ProductId");
 
-                    b.ToTable("Favourites", (string)null);
+                    b.ToTable("Favourites");
                 });
 
             modelBuilder.Entity("Gudena.Data.Entities.Media", b =>
@@ -269,7 +269,7 @@ namespace Gudena.Data.Migrations
 
                     b.HasIndex("ProductId");
 
-                    b.ToTable("Media", (string)null);
+                    b.ToTable("Media");
                 });
 
             modelBuilder.Entity("Gudena.Data.Entities.Order", b =>
@@ -305,7 +305,7 @@ namespace Gudena.Data.Migrations
 
                     b.HasIndex("ApplicationUserId");
 
-                    b.ToTable("Orders", (string)null);
+                    b.ToTable("Orders");
                 });
 
             modelBuilder.Entity("Gudena.Data.Entities.OrderItem", b =>
@@ -338,7 +338,7 @@ namespace Gudena.Data.Migrations
 
                     b.HasIndex("ProductId");
 
-                    b.ToTable("OrderItems", (string)null);
+                    b.ToTable("OrderItems");
                 });
 
             modelBuilder.Entity("Gudena.Data.Entities.Payment", b =>
@@ -379,7 +379,7 @@ namespace Gudena.Data.Migrations
 
                     b.HasIndex("PayingUserId");
 
-                    b.ToTable("Payments", (string)null);
+                    b.ToTable("Payments");
                 });
 
             modelBuilder.Entity("Gudena.Data.Entities.Product", b =>
@@ -435,7 +435,7 @@ namespace Gudena.Data.Migrations
 
                     b.HasIndex("OwnerId");
 
-                    b.ToTable("Products", (string)null);
+                    b.ToTable("Products");
                 });
 
             modelBuilder.Entity("Gudena.Data.Entities.ProductReturn", b =>
@@ -470,7 +470,7 @@ namespace Gudena.Data.Migrations
 
                     b.HasIndex("ProductId");
 
-                    b.ToTable("ProductReturns", (string)null);
+                    b.ToTable("ProductReturns");
                 });
 
             modelBuilder.Entity("Gudena.Data.Entities.Shipping", b =>
@@ -481,6 +481,14 @@ namespace Gudena.Data.Migrations
 
                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
 
+                    b.Property<string>("City")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<string>("Country")
+                        .IsRequired()
+                        .HasColumnType("text");
+
                     b.Property<string>("DeliveryOption")
                         .IsRequired()
                         .HasColumnType("text");
@@ -488,7 +496,7 @@ namespace Gudena.Data.Migrations
                     b.Property<int?>("OrderId")
                         .HasColumnType("integer");
 
-                    b.Property<string>("ShippingAddress")
+                    b.Property<string>("PostalCode")
                         .IsRequired()
                         .HasColumnType("text");
 
@@ -503,11 +511,15 @@ namespace Gudena.Data.Migrations
                         .IsRequired()
                         .HasColumnType("text");
 
+                    b.Property<string>("Street")
+                        .IsRequired()
+                        .HasColumnType("text");
+
                     b.HasKey("Id");
 
                     b.HasIndex("OrderId");
 
-                    b.ToTable("Shippings", (string)null);
+                    b.ToTable("Shippings");
                 });
 
             modelBuilder.Entity("Gudena.Data.Entities.WarrantyClaim", b =>
@@ -542,7 +554,7 @@ namespace Gudena.Data.Migrations
 
                     b.HasIndex("ProductId");
 
-                    b.ToTable("WarrantyClaims", (string)null);
+                    b.ToTable("WarrantyClaims");
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRole", b =>
