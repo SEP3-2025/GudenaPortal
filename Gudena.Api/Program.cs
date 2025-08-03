@@ -91,6 +91,7 @@ builder.Services.AddScoped<IAccountDetailsRepository, AccountDetailsRepository>(
 builder.Services.AddScoped<IAccountDetailsService, AccountDetailsService>();
 builder.Services.AddScoped<IOrderItemRepository, OrderItemRepository>();
 builder.Services.AddScoped<IOrderItemService, OrderItemService>();
+builder.Services.AddScoped<IBusinessProductRepository, BusinessProductRepository>();
 
 // Add Swagger with JWT support
 builder.Services.AddEndpointsApiExplorer();
@@ -124,6 +125,12 @@ builder.Services.AddAuthorization(options =>
 {
     options.AddPolicy("BusinessOnly", policy =>
         policy.RequireClaim("userType", "Business"));
+});
+
+builder.Services.AddAuthorization(options =>
+{
+    options.AddPolicy("BuyerOnly", policy =>
+        policy.RequireClaim("userType", "Buyer"));
 });
 
 var app = builder.Build();
