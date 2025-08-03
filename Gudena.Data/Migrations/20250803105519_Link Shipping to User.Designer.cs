@@ -3,6 +3,7 @@ using System;
 using Gudena.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
@@ -11,9 +12,11 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace Gudena.Data.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    partial class AppDbContextModelSnapshot : ModelSnapshot
+    [Migration("20250803105519_Link Shipping to User")]
+    partial class LinkShippingtoUser
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -485,10 +488,6 @@ namespace Gudena.Data.Migrations
                         .IsRequired()
                         .HasColumnType("text");
 
-                    b.Property<string>("BusinessUserId")
-                        .IsRequired()
-                        .HasColumnType("text");
-
                     b.Property<string>("City")
                         .IsRequired()
                         .HasColumnType("text");
@@ -526,8 +525,6 @@ namespace Gudena.Data.Migrations
                     b.HasKey("Id");
 
                     b.HasIndex("ApplicationUserId");
-
-                    b.HasIndex("BusinessUserId");
 
                     b.HasIndex("OrderId");
 
@@ -888,20 +885,12 @@ namespace Gudena.Data.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("Gudena.Data.Entities.ApplicationUser", "BusinessUser")
-                        .WithMany()
-                        .HasForeignKey("BusinessUserId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
                     b.HasOne("Gudena.Data.Entities.Order", "Order")
                         .WithMany("Shippings")
                         .HasForeignKey("OrderId")
                         .OnDelete(DeleteBehavior.Cascade);
 
                     b.Navigation("ApplicationUser");
-
-                    b.Navigation("BusinessUser");
 
                     b.Navigation("Order");
                 });

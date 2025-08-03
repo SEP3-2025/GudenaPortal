@@ -14,10 +14,14 @@ namespace Gudena.Api.Controllers
     public class PaymentController : ControllerBase
     {
         private readonly IPaymentService _paymentService;
+        private readonly IBasketService _basketService;
+        private readonly IShippingService _shippingService;
 
-        public PaymentController(IPaymentService paymentService)
+        public PaymentController(IPaymentService paymentService, IBasketService basketService, IShippingService shippingService)
         {
             _paymentService = paymentService;
+            _basketService = basketService;
+            _shippingService = shippingService;
         }
 
         [HttpGet("{id}")]
@@ -59,9 +63,9 @@ namespace Gudena.Api.Controllers
             var payment = new Payment
             {
                 PaymentMethod = dto.PaymentMethod,
-                PaymentStatus = "Completed",
+                PaymentStatus = "Hold",
                 TransactionDate = DateTime.UtcNow,
-                Amount = dto.Amount,
+                Amount = await GetTotalPrice(userId),
                 TransactionId = Guid.NewGuid().ToString(),
                 PayingUserId = userId
             };
@@ -70,7 +74,8 @@ namespace Gudena.Api.Controllers
             return CreatedAtAction(nameof(GetPaymentById), new { id = createdPayment.Id }, createdPayment);
         }
 
-        [HttpPut("{id}")]
+        // Businesses shouldn't be able to modify payments as they might be sharing the order with other businesses
+        /*[HttpPut("{id}")]
         [Authorize(Policy = "BusinessOnly")] 
         public async Task<ActionResult<Payment>> UpdatePayment(int id, [FromBody] PaymentDto dto)
         {
@@ -81,13 +86,21 @@ namespace Gudena.Api.Controllers
             if (existingPayment == null) return NotFound();
 
             existingPayment.PaymentMethod = dto.PaymentMethod;
-            existingPayment.PaymentStatus = dto.PaymentStatus;
             existingPayment.TransactionDate = dto.TransactionDate;
-            existingPayment.Amount = dto.Amount;
+            existingPayment.Amount = await GetTotalPrice(userId);
             existingPayment.OrderId = dto.OrderId;
 
             var updatedPayment = await _paymentService.UpdatePaymentAsync(existingPayment);
             return Ok(updatedPayment);
+        }*/
+
+        private async Task<decimal> GetTotalPrice(string userId)
+        {
+            Basket basket = await _basketService.RetrieveBasketAsync(userId, -1);
+            if (basket.BasketItems.Count < 0)
+                throw new Exception(); // TODO: Custom exception
+            List<Shipping> shippings = await _shippingService.RetrievePreviews(userId);
+            return basket.BasketItems.Sum(b => b.Amount * b.Product.Price) + shippings.Sum(s => s.ShippingCost);
         }
     }
 }

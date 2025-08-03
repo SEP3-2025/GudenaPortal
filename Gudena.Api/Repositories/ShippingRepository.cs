@@ -24,7 +24,7 @@ namespace Gudena.Api.Repositories
                 .FirstOrDefaultAsync(s => s.Id == id);
         }
 
-        public async Task<IEnumerable<Shipping>> GetShippingsByUserIdAsync(string userId)
+        public async Task<List<Shipping>> GetShippingsByUserIdAsync(string userId)
         {
             return await _context.Shippings
                 .Where(s => s.OrderItems.Any(oi => oi.Order.ApplicationUserId == userId))
@@ -83,6 +83,21 @@ namespace Gudena.Api.Repositories
 
             await _context.SaveChangesAsync();
             return existingShipping;
+        }
+        
+        public async Task<List<Shipping>> RetrievePreviews(string userId)
+        {
+            return _context.Shippings
+                .Where(s => s.ApplicationUserId == userId && s.ShippingStatus == "Preview").ToList();
+            
+        }
+
+        public async Task CleanUpPreviews(string userId)
+        {
+            List<Shipping> previews = _context.Shippings
+                .Where(s => s.ApplicationUserId == userId && s.ShippingStatus == "Preview").ToList();
+            _context.Shippings.RemoveRange(previews);
+            await _context.SaveChangesAsync();
         }
     }
 }

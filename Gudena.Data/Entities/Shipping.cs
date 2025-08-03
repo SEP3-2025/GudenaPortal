@@ -1,3 +1,5 @@
+using System.Text.Json.Serialization;
+
 namespace Gudena.Data.Entities;
 
 public class Shipping
@@ -18,5 +20,13 @@ public class Shipping
 
     public int? OrderId { get; set; }
     public Order? Order { get; set; }
+
+    public string ApplicationUserId { get; set; }
+    [JsonIgnore]
+    public ApplicationUser ApplicationUser { get; set; }
+    
+    public string BusinessUserId { get; set; }
+    [JsonIgnore]
+    public ApplicationUser BusinessUser { get; set; }
 }
 

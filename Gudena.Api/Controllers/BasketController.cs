@@ -28,6 +28,8 @@ public class BasketController : ControllerBase
     {
         // Get userId
         var userId = User.FindFirst("uid")?.Value;
+        if (userId == null)
+            return Unauthorized();
         // Basket -1 retrieves always the basket attached to this user or creates a new one if there is none attached
         var basket = await _basketService.RetrieveBasketAsync(userId, -1);
         if (basket == null)
@@ -40,6 +42,8 @@ public class BasketController : ControllerBase
     {
         // Get userId
         var userId = User.FindFirst("uid")?.Value;
+        if (userId == null)
+            return Unauthorized();
         try
         {
             Basket basket = await _basketService.AddProductToBasketAsync(userId,
@@ -63,6 +67,8 @@ public class BasketController : ControllerBase
     {
         // Get userId
         var userId = User.FindFirst("uid")?.Value;
+        if (userId == null)
+            return Unauthorized();
         try
         {
             var basket = await _basketService.UpdateProductAmountAsync(userId, basketItemDto.ProductId,
@@ -86,6 +92,8 @@ public class BasketController : ControllerBase
     {
         // Get userId
         var userId = User.FindFirst("uid")?.Value;
+        if (userId == null)
+            return Unauthorized();
         try
         {
             await _basketService.DestroyBasketAsync(userId);
