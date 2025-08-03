@@ -26,6 +26,8 @@ public class BasketRepository : IBasketRepository
             return await _context.Baskets
                 .Include(b => b.BasketItems)
                 .ThenInclude(ci => ci.Product)
+                .ThenInclude(p => p.Owner)
+                .ThenInclude(b => b.AccountDetails)
                 .SingleOrDefaultAsync(b => b.Id == basketId);
         }
         else // Retrieve last unordered basket if it exists, otherwise create new basket
@@ -33,6 +35,8 @@ public class BasketRepository : IBasketRepository
             Basket? basket = await _context.Baskets
                 .Include(c => c.BasketItems)
                 .ThenInclude(ci => ci.Product)
+                .ThenInclude(p => p.Owner)
+                .ThenInclude(b => b.AccountDetails)
                 .SingleOrDefaultAsync(b => b.ApplicationUserId == userId);
             if (basket == null) // Basket doesn't exist
             {
@@ -122,5 +126,14 @@ public class BasketRepository : IBasketRepository
             throw new ResourceNotFoundException("Basket not found");
         _context.Remove(basket);
         await _context.SaveChangesAsync();
+    }
+
+    public async Task<List<AccountDetails>> GetBusinessDetailsForBasketAsync(string userId)
+    {
+        Basket basket = await RetrieveBasketAsync(userId, -1);
+        if (basket == null)
+            throw new ResourceNotFoundException("Basket not found");
+        List<AccountDetails> details = basket.BasketItems.Select(bi => bi.Product.Owner.AccountDetails).Distinct().ToList();
+        return details;
     }
 }

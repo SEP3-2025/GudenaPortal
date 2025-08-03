@@ -17,12 +17,14 @@ namespace Gudena.Api.Controllers
         private readonly IShippingService _shippingService;
         private readonly IAccountDetailsService _accountDetailsService;
         private readonly IOrderItemService _orderItemService;
+        private readonly IBasketService _basketService;
 
-        public ShippingController(IShippingService shippingService, IAccountDetailsService accountDetailsService, IOrderItemService orderItemService)
+        public ShippingController(IShippingService shippingService, IAccountDetailsService accountDetailsService, IOrderItemService orderItemService, IBasketService basketService)
         {
             _shippingService = shippingService;
             _accountDetailsService = accountDetailsService;
             _orderItemService = orderItemService;
+            _basketService = basketService;
         }
 
         [HttpGet("{id}")]
@@ -57,7 +59,7 @@ namespace Gudena.Api.Controllers
             if (buyer == null)
                 return BadRequest("Account details not found.");
 
-            // Get product owner account details
+            /*// Get product owner account details
             var orderItemId = dto.OrderItemIds.First();
             var orderItem = await _orderItemService.GetOrderItemByIdAsync(orderItemId);
             if (orderItem == null)
@@ -67,31 +69,37 @@ namespace Gudena.Api.Controllers
             var ownerAccount = await _accountDetailsService.GetAccountDetailsForUserAsync(productOwnerId);
             if (ownerAccount == null)
                 return BadRequest("Product owner account details not found.");
+            */
 
-            // Calculate shipping cost (origin = product owner, destination = buyer)
-            double shippingCost = await GudenaShippingClient.GetShippingCostAsync(
-                originCountry: ownerAccount.Country,
-                originPostalCode: ownerAccount.PostalCode,
-                destCountry: buyer.Country,
-                destPostalCode: buyer.PostalCode);
-
-            if (shippingCost < 0)
-                return StatusCode(500, "Error retrieving shipping cost from GudenaShipping service.");
-
-            var shipping = new Shipping
+            var ownerInformation = await _basketService.GetBusinessDetailsForBasketAsync(userId);
+            List<Shipping> shippings = new List<Shipping>();
+            
+            foreach (var business in ownerInformation)
             {
-                City = buyer.City,
-                Street = buyer.Street,
-                PostalCode = buyer.PostalCode,
-                Country = buyer.Country,
-                DeliveryOption = dto.DeliveryOption,
-                ShippingNumbers = dto.ShippingNumbers,
-                ShippingCost = Convert.ToDecimal(shippingCost),
-                ShippingStatus = dto.ShippingStatus
-            };
+                // Calculate shipping cost (origin = product owner, destination = buyer)
+                double shippingCost = await GudenaShippingClient.GetShippingCostAsync(
+                    originCountry: business.Country,
+                    originPostalCode: business.PostalCode,
+                    destCountry: buyer.Country,
+                    destPostalCode: buyer.PostalCode);
+                if (shippingCost < 0)
+                    return StatusCode(500, "Error retrieving shipping cost from GudenaShipping service.");
 
-            var createdShipping = await _shippingService.CreateShippingAsync(shipping, dto.OrderItemIds);
-            return CreatedAtAction(nameof(GetShippingById), new { id = createdShipping.Id }, createdShipping);
+                var shipping = new Shipping
+                {
+                    City = buyer.City,
+                    Street = buyer.Street,
+                    PostalCode = buyer.PostalCode,
+                    Country = buyer.Country,
+                    DeliveryOption = dto.DeliveryOption,
+                    ShippingNumbers = dto.ShippingNumbers,
+                    ShippingCost = Convert.ToDecimal(shippingCost),
+                    ShippingStatus = dto.ShippingStatus
+                };
+                shippings.Add(await _shippingService.CreateShippingAsync(shipping, new List<int>()));
+            }
+            
+            return Ok(shippings);
         }
 
 
