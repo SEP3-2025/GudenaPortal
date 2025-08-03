@@ -31,4 +31,19 @@ public class BuyerProductsController : ControllerBase
 
         return Ok(product);
     }
+
+    // New endpoint for search by name
+    [HttpGet("search")]
+    public async Task<ActionResult<IEnumerable<Product>>> SearchProducts([FromQuery] string name)
+    {
+        if (string.IsNullOrWhiteSpace(name))
+            return BadRequest("Search term cannot be empty.");
+
+        var products = await _service.SearchProductsByNameAsync(name);
+
+        if (products == null || !products.Any())
+            return NotFound("No products found matching the search term.");
+
+        return Ok(products);
+    }
 }
