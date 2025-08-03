@@ -1,7 +1,7 @@
 using Gudena.Api.DTOs;
 using Gudena.Api.Exceptions;
 using Gudena.Data;
-
+using Gudena.Data.Entities;
 using Microsoft.EntityFrameworkCore;
 
 namespace Gudena.Api.Repositories;
@@ -55,8 +55,27 @@ public class BusinessOrderRepository : IBusinessOrderRepository
 
         if (order.Status == status)
             throw new BusinessInvalidStatusChangeException("The order already has this status.");
+        
+        // Ensure that the status change is a progression and that cancelled and/or completed orderItems aren't handled
+        List<OrderItem> orderItems = order.OrderItems.Where(oi => oi.Product.OwnerId == businessId).ToList();
+        if (orderItems.Any(oi => oi.Status is "Completed" or "Cancelled"))
+            throw new BusinessInvalidStatusChangeException($"The order is already ${orderItems.First().Status}.");
+        if (orderItems.Any(oi => oi.Status == "Shipped") && status != "Completed")
+            throw new BusinessInvalidStatusChangeException($"Shipped orders can only be marked as Completed.");
 
-        order.Status = status;
+        foreach (OrderItem oi in orderItems)
+        {
+            oi.Status = status;
+        }
+        
+        // Update order status based on current orderItem status
+        if (order.OrderItems.All(oi => oi.Status == status))
+            order.Status = status;
+        else if (order.OrderItems.Any(oi => oi.Status == "Shipped"))
+            order.Status = "PartiallyShipped";
+        else if (order.OrderItems.Any(oi => oi.Status == "Processing"))
+            order.Status = "Processing";
+        
         await _context.SaveChangesAsync();
         return true;
     }
