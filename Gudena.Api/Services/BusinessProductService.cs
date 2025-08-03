@@ -116,5 +116,13 @@ namespace Gudena.Api.Services
                 })
                 .ToListAsync();
         }
+
+        public async Task<object?> GetProduct(string? userId, int productId)
+        {
+            var product = await _context.Products
+                .FirstOrDefaultAsync(p => p.Id == productId && p.OwnerId == userId);
+            if (product == null) return "Product not found or not owned by you";
+            return product;
+        }
     }
 }

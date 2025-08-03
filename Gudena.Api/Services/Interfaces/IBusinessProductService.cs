@@ -8,5 +8,6 @@ namespace Gudena.Api.Services.Interfaces
         Task<string> UpdateProductAsync(string userId, int productId, ProductCreateDto dto);
         Task<string> DeleteProductAsync(string userId, int productId);
         Task<object> GetMyProductsAsync(string userId);
+        Task<object?> GetProduct(string? userId, int productId);    
     }
 }
