@@ -21,4 +21,6 @@ public class BuyerProductService : IBuyerProductService
     {
         return await _repository.GetByIdAsync(id);
     }
+    public async Task<IEnumerable<Product>> SearchProductsByNameAsync(string name)
+        => await _repository.SearchByNameAsync(name);
 }
