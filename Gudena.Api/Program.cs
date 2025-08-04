@@ -91,6 +91,8 @@ builder.Services.AddScoped<IAccountDetailsRepository, AccountDetailsRepository>(
 builder.Services.AddScoped<IAccountDetailsService, AccountDetailsService>();
 builder.Services.AddScoped<IOrderItemRepository, OrderItemRepository>();
 builder.Services.AddScoped<IOrderItemService, OrderItemService>();
+builder.Services.AddScoped<IAuthRepository, AuthRepository>();
+builder.Services.AddScoped<IAuthService, AuthService>();
 
 // Add Swagger with JWT support
 builder.Services.AddEndpointsApiExplorer();
@@ -153,3 +155,5 @@ app.UseAuthorization();
 app.MapControllers();
 
 app.Run();
+
+public partial class Program { }
