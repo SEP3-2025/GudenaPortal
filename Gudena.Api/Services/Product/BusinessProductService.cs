@@ -1,4 +1,5 @@
 using Gudena.Api.DTOs;
+using Gudena.Api.Repositories.Interfaces;
 using Gudena.Api.Services.Interfaces;
 using Gudena.Data;
 using Gudena.Data.Entities;
@@ -7,18 +8,18 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Gudena.Api.Services
 {
-    public class BusinessProductService : IBusinessProductService
+        public class BusinessProductService : IBusinessProductService
     {
-        private readonly AppDbContext _context;
+        private readonly IBusinessProductRepository _repository;
 
-        public BusinessProductService(AppDbContext context)
+        public BusinessProductService(IBusinessProductRepository repository)
         {
-            _context = context;
+            _repository = repository;
         }
 
         public async Task<string> CreateProductAsync(string userId, ProductCreateDto dto)
         {
-            var category = await _context.Categories.FindAsync(dto.CategoryId);
+            var category = await _repository.GetCategoryAsync(dto.CategoryId);
             if (category == null) return "Invalid category ID";
 
             var product = new Product
@@ -36,19 +37,18 @@ namespace Gudena.Api.Services
                 OwnerId = userId
             };
 
-            _context.Products.Add(product);
-            await _context.SaveChangesAsync();
+            await _repository.AddProductAsync(product);
+            await _repository.SaveChangesAsync();
 
             if (dto.MediaUrls != null && dto.MediaUrls.Any())
             {
-                var mediaList = dto.MediaUrls.Select(url => new Media
+                product.Media = dto.MediaUrls.Select(url => new Media
                 {
                     ProductId = product.Id,
                     MediaUrl = url
                 }).ToList();
 
-                _context.Media.AddRange(mediaList);
-                await _context.SaveChangesAsync();
+                await _repository.SaveChangesAsync();
             }
 
             return "Product created successfully";
@@ -56,11 +56,10 @@ namespace Gudena.Api.Services
 
         public async Task<string> UpdateProductAsync(string userId, int productId, ProductCreateDto dto)
         {
-            var product = await _context.Products
-                .FirstOrDefaultAsync(p => p.Id == productId && p.OwnerId == userId);
+            var product = await _repository.GetProductAsync(productId, userId);
             if (product == null) return "Product not found or not owned by you";
 
-            var category = await _context.Categories.FindAsync(dto.CategoryId);
+            var category = await _repository.GetCategoryAsync(dto.CategoryId);
             if (category == null) return "Invalid category ID";
 
             product.Name = dto.Name;
@@ -80,41 +79,33 @@ namespace Gudena.Api.Services
                     MediaUrl = m
                 }).ToList()
                 : null;
-            
-            await _context.SaveChangesAsync();
+
+            await _repository.SaveChangesAsync();
             return "Product updated successfully";
         }
 
         public async Task<string> DeleteProductAsync(string userId, int productId)
         {
-            var product = await _context.Products
-                .FirstOrDefaultAsync(p => p.Id == productId && p.OwnerId == userId);
+            var product = await _repository.GetProductAsync(productId, userId);
             if (product == null) return "Product not found or not owned by you";
 
             product.IsDeleted = true;
-            await _context.SaveChangesAsync();
+            await _repository.SaveChangesAsync();
             return "Product marked as deleted successfully";
         }
 
         public async Task<object> GetMyProductsAsync(string userId)
         {
-            return await _context.Products
-                .Where(p => p.OwnerId == userId && !p.IsDeleted)
-                .Select(p => new
-                {
-                    p.Id,
-                    p.Name,
-                    p.Description,
-                    p.Thumbnail,
-                    p.Price,
-                    p.Stock,
-                    p.Unit,
-                    p.ReferenceUrl,
-                    p.isReturnable,
-                    Category = p.Category != null ? p.Category.Name : null,
-                    Media = p.Media.Select(m => m.MediaUrl).ToList()
-                })
-                .ToListAsync();
+            return await _repository.GetMyProductsAsync(userId);
+        }
+
+        public async Task<object?> GetProduct(string? userId, int productId)
+        {
+            var product = await _repository.GetProductAsync(productId, userId);
+            if (product == null)
+                return "Product not found or not owned by you";
+
+            return product;
         }
     }
 }
