@@ -50,6 +50,14 @@ namespace Gudena.Api.Controllers
             var userId = User.FindFirstValue("uid");
             var result = await _service.GetMyProductsAsync(userId);
             return Ok(result);
+        } 
+        
+        [HttpGet("{productId}")]
+        public async Task<IActionResult> GetProduct(int productId)
+        {
+            var userId = User.FindFirstValue("uid");
+            var result = await _service.GetProduct(userId, productId);
+            return Ok(result);
         }
     }
 }

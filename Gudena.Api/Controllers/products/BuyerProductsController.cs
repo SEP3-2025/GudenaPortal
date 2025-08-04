@@ -1,11 +1,13 @@
 using Gudena.Api.Services;
 using Gudena.Data.Entities;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Gudena.Api.Controllers;
 
 [ApiController]
 [Route("api/[controller]")]
+[Authorize(Policy = "BuyerOnly")]
 public class BuyerProductsController : ControllerBase
 {
     private readonly IBuyerProductService _service;
