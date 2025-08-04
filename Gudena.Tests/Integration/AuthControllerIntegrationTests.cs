@@ -3,6 +3,7 @@ using System.Threading.Tasks;
 using FluentAssertions;
 using Gudena.Api.DTOs;
 using Gudena.Api.Repositories;
+using Gudena.Api.Repositories.Interfaces;
 using Gudena.Api.Services;
 using Gudena.Data;
 using Gudena.Data.Entities;
@@ -38,7 +39,8 @@ namespace GudenaPortal.Tests.Integration
 
             var productRepository = new ProductRepository(_dbContext);
             var basketRepository = new BasketRepository(_dbContext, productRepository);
-            _productService = new BusinessProductService(_dbContext);
+            var businessProductRepository = new BusinessProductRepository(_dbContext);
+            _productService = new BusinessProductService(businessProductRepository);
             _basketService = new BasketService(basketRepository);
         }
 

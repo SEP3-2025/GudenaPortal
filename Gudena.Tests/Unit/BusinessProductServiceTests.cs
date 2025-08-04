@@ -3,9 +3,9 @@ using System.Linq;
 using System.Threading.Tasks;
 using FluentAssertions;
 using Gudena.Api.DTOs;
+using Gudena.Api.Repositories;
 using Gudena.Api.Services;
 using Gudena.Data.Entities;
-using Microsoft.EntityFrameworkCore;
 using Xunit;
 
 namespace GudenaPortal.Tests
@@ -17,16 +17,19 @@ namespace GudenaPortal.Tests
         {
             // Arrange
             using var context = TestDbHelper.GetInMemoryDbContext();
-            context.Categories.Add(new Category 
-            { 
-                Id = 1, 
-                Name = "Electronics", 
-                Description = "Electronic devices", 
-                CategoryType = "Main" 
+
+            context.Categories.Add(new Category
+            {
+                Id = 1,
+                Name = "Electronics",
+                Description = "Electronic devices",
+                CategoryType = "Main"
             });
             await context.SaveChangesAsync();
 
-            var service = new BusinessProductService(context);
+            // use real repository with in-memory db
+            var repository = new BusinessProductRepository(context);
+            var service = new BusinessProductService(repository);
 
             var dto = new ProductCreateDto
             {
@@ -56,12 +59,13 @@ namespace GudenaPortal.Tests
         {
             // Arrange
             using var context = TestDbHelper.GetInMemoryDbContext();
-            context.Categories.Add(new Category 
-            { 
-                Id = 1, 
-                Name = "Electronics", 
-                Description = "Electronic devices", 
-                CategoryType = "Main" 
+
+            context.Categories.Add(new Category
+            {
+                Id = 1,
+                Name = "Electronics",
+                Description = "Electronic devices",
+                CategoryType = "Main"
             });
             var product = new Product
             {
@@ -80,7 +84,8 @@ namespace GudenaPortal.Tests
             context.Products.Add(product);
             await context.SaveChangesAsync();
 
-            var service = new BusinessProductService(context);
+            var repository = new BusinessProductRepository(context);
+            var service = new BusinessProductService(repository);
 
             var dto = new ProductCreateDto
             {
@@ -112,12 +117,13 @@ namespace GudenaPortal.Tests
         {
             // Arrange
             using var context = TestDbHelper.GetInMemoryDbContext();
-            context.Categories.Add(new Category 
-            { 
-                Id = 1, 
-                Name = "Electronics", 
-                Description = "Electronic devices", 
-                CategoryType = "Main" 
+
+            context.Categories.Add(new Category
+            {
+                Id = 1,
+                Name = "Electronics",
+                Description = "Electronic devices",
+                CategoryType = "Main"
             });
             var product = new Product
             {
@@ -136,7 +142,8 @@ namespace GudenaPortal.Tests
             context.Products.Add(product);
             await context.SaveChangesAsync();
 
-            var service = new BusinessProductService(context);
+            var repository = new BusinessProductRepository(context);
+            var service = new BusinessProductService(repository);
 
             // Act
             var result = await service.DeleteProductAsync("user1", 1);
