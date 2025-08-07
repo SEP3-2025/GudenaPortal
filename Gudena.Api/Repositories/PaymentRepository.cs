@@ -71,10 +71,10 @@ namespace Gudena.Api.Repositories
                 .ToListAsync();
         }
         
-        public async Task<Payment?> GetUnclaimedPaymentByIdAsync(int id, string userId)
+        public async Task<Payment?> GetUnclaimedPaymentAsync(decimal price, string userId)
         {
             return await _context.Payments
-                .FirstOrDefaultAsync(p => p.Id == id && p.OrderId == null && p.PayingUserId == userId);
+                .FirstOrDefaultAsync(p => p.OrderId == null && p.PayingUserId == userId && p.PaymentStatus == "Hold" && p.Amount == price);
         }
     }
 }

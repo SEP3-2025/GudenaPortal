@@ -9,7 +9,10 @@ using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using System.Text;
 using System.Text.Json.Serialization;
+using Gudena.Api.Repositories.Interfaces;
 using Gudena.Api.Services.Interfaces;
+using Gudena.Data.Repositories;
+using Gudena.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -84,6 +87,13 @@ builder.Services.AddScoped<IShippingRepository, ShippingRepository>();
 builder.Services.AddScoped<IShippingService, ShippingService>();
 builder.Services.AddScoped<IPaymentRepository, PaymentRepository>();
 builder.Services.AddScoped<IPaymentService, PaymentService>();
+builder.Services.AddScoped<IAccountDetailsRepository, AccountDetailsRepository>();
+builder.Services.AddScoped<IAccountDetailsService, AccountDetailsService>();
+builder.Services.AddScoped<IOrderItemRepository, OrderItemRepository>();
+builder.Services.AddScoped<IOrderItemService, OrderItemService>();
+builder.Services.AddScoped<IAuthRepository, AuthRepository>();
+builder.Services.AddScoped<IAuthService, AuthService>();
+builder.Services.AddScoped<IBusinessProductRepository, BusinessProductRepository>();
 
 // Add Swagger with JWT support
 builder.Services.AddEndpointsApiExplorer();
@@ -119,6 +129,12 @@ builder.Services.AddAuthorization(options =>
         policy.RequireClaim("userType", "Business"));
 });
 
+builder.Services.AddAuthorization(options =>
+{
+    options.AddPolicy("BuyerOnly", policy =>
+        policy.RequireClaim("userType", "Buyer"));
+});
+
 var app = builder.Build();
 
 // Apply migrations if needed (optional)
@@ -146,3 +162,5 @@ app.UseAuthorization();
 app.MapControllers();
 
 app.Run();
+
+public partial class Program { }

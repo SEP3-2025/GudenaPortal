@@ -36,4 +36,9 @@ public class BasketService : IBasketService
     {
         await _basketRepository.DestroyBasketAsync(userId);
     }
+
+    public async Task<List<AccountDetails>> GetBusinessDetailsForBasketAsync(string userId)
+    {
+        return await _basketRepository.GetBusinessDetailsForBasketAsync(userId);
+    }
 }

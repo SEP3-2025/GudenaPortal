@@ -22,4 +22,12 @@ public class ProductRepository : IProductRepository
     {
         return await _context.Products.FindAsync(id);
     }
+    public async Task<IEnumerable<Product>> SearchByNameAsync(string name)
+    {
+        var search = name.ToLower();
+
+        return await _context.Products
+            .Where(p => EF.Functions.ILike(p.Name, $"%{search}%"))
+            .ToListAsync();
+    }
 }

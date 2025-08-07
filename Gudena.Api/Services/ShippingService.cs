@@ -19,7 +19,7 @@ namespace Gudena.Api.Services
             return await _shippingRepository.GetShippingByIdAsync(id);
         }
 
-        public async Task<IEnumerable<Shipping>> GetShippingsByUserIdAsync(string userId)
+        public async Task<List<Shipping>> GetShippingsByUserIdAsync(string userId)
         {
             return await _shippingRepository.GetShippingsByUserIdAsync(userId);
         }
@@ -32,6 +32,16 @@ namespace Gudena.Api.Services
         public async Task<Shipping> UpdateShippingAsync(Shipping shipping, List<int> orderItemIds)
         {
             return await _shippingRepository.UpdateShippingAsync(shipping, orderItemIds);
+        }
+
+        public async Task<List<Shipping>> RetrievePreviews(string userId)
+        {
+            return await _shippingRepository.RetrievePreviews(userId);
+        }
+
+        public async Task CleanUpPreviews(string userId)
+        {
+            await _shippingRepository.CleanUpPreviews(userId);
         }
     }
 }

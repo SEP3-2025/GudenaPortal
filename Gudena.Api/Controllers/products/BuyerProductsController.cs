@@ -1,11 +1,13 @@
 using Gudena.Api.Services;
 using Gudena.Data.Entities;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Gudena.Api.Controllers;
 
 [ApiController]
 [Route("api/[controller]")]
+[Authorize(Policy = "BuyerOnly")]
 public class BuyerProductsController : ControllerBase
 {
     private readonly IBuyerProductService _service;
@@ -30,5 +32,20 @@ public class BuyerProductsController : ControllerBase
             return NotFound();
 
         return Ok(product);
+    }
+
+    // New endpoint for search by name
+    [HttpGet("search")]
+    public async Task<ActionResult<IEnumerable<Product>>> SearchProducts([FromQuery] string name)
+    {
+        if (string.IsNullOrWhiteSpace(name))
+            return BadRequest("Search term cannot be empty.");
+
+        var products = await _service.SearchProductsByNameAsync(name);
+
+        if (products == null || !products.Any())
+            return NotFound("No products found matching the search term.");
+
+        return Ok(products);
     }
 }

@@ -1,3 +1,5 @@
+using System.Text.Json.Serialization;
+
 namespace Gudena.Data.Entities;
 
 public class Product
@@ -17,6 +19,7 @@ public class Product
     public Category Category { get; set; }
 
     public string OwnerId { get; set; }
+    [JsonIgnore]
     public ApplicationUser Owner { get; set; }
 
     public ICollection<Media> Media { get; set; }

@@ -6,4 +6,5 @@ public interface IBuyerProductService
 {
     Task<IEnumerable<Product>> GetAllProductsAsync();
     Task<Product?> GetProductByIdAsync(int id);
+    Task<IEnumerable<Product>> SearchProductsByNameAsync(string name);
 }

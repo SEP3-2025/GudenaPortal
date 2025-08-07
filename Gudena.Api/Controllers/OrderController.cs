@@ -59,13 +59,13 @@ public class OrderController : ControllerBase
     }
 
     [HttpPost]
-    public async Task<ActionResult<Order>> CreateOrder(OrderDto orderDto)
+    public async Task<ActionResult<Order>> CreateOrder()
     {
         // Get user
         var userId = User.FindFirst("uid")?.Value;
         try
         {
-            Order order = await _orderService.CreateOrderAsync(orderDto, userId);
+            Order order = await _orderService.CreateOrderAsync(userId);
             return Ok(order);
         }
         catch (OrderExceedsStockException e)
@@ -104,6 +104,16 @@ public class OrderController : ControllerBase
         {
             Console.WriteLine(e);
             return BadRequest(e.Message);
+        }
+        catch (UnpaidException e)
+        {
+            Console.WriteLine(e);
+            return StatusCode(402, e.Message); // Payment required
+        }
+        catch (CannotModifyOrderException e)
+        {
+            Console.WriteLine(e);
+            return Problem();
         }
     }
 
@@ -173,7 +183,7 @@ public class OrderController : ControllerBase
             PayingUserId = userId,
             TransactionDate = DateTime.Now,
             PaymentStatus = "Completed",
-            TransactionId = $"Gudena-{Guid.NewGuid()}"
+            TransactionId = $"GudenaPay-{Guid.NewGuid()}"
         };
         refund = await _paymentService.CreatePaymentAsync(refund);
         

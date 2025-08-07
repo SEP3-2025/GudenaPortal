@@ -7,6 +7,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Gudena.Api", "Gudena.Api\Gu
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Gudena.Data", "Gudena.Data\Gudena.Data.csproj", "{C726D889-337C-44F0-BAB6-42472596F531}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Gudena.Tests", "Gudena.Tests\Gudena.Tests.csproj", "{6BE0D9C9-3FAC-43A6-8831-229E734D2A90}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -41,6 +43,18 @@ Global
 		{C726D889-337C-44F0-BAB6-42472596F531}.Release|x64.Build.0 = Release|Any CPU
 		{C726D889-337C-44F0-BAB6-42472596F531}.Release|x86.ActiveCfg = Release|Any CPU
 		{C726D889-337C-44F0-BAB6-42472596F531}.Release|x86.Build.0 = Release|Any CPU
+		{6BE0D9C9-3FAC-43A6-8831-229E734D2A90}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{6BE0D9C9-3FAC-43A6-8831-229E734D2A90}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{6BE0D9C9-3FAC-43A6-8831-229E734D2A90}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{6BE0D9C9-3FAC-43A6-8831-229E734D2A90}.Debug|x64.Build.0 = Debug|Any CPU
+		{6BE0D9C9-3FAC-43A6-8831-229E734D2A90}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{6BE0D9C9-3FAC-43A6-8831-229E734D2A90}.Debug|x86.Build.0 = Debug|Any CPU
+		{6BE0D9C9-3FAC-43A6-8831-229E734D2A90}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{6BE0D9C9-3FAC-43A6-8831-229E734D2A90}.Release|Any CPU.Build.0 = Release|Any CPU
+		{6BE0D9C9-3FAC-43A6-8831-229E734D2A90}.Release|x64.ActiveCfg = Release|Any CPU
+		{6BE0D9C9-3FAC-43A6-8831-229E734D2A90}.Release|x64.Build.0 = Release|Any CPU
+		{6BE0D9C9-3FAC-43A6-8831-229E734D2A90}.Release|x86.ActiveCfg = Release|Any CPU
+		{6BE0D9C9-3FAC-43A6-8831-229E734D2A90}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

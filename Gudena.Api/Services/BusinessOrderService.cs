@@ -10,6 +10,7 @@ public class BusinessOrderService : IBusinessOrderService
     
     private static readonly HashSet<string> AllowedStatuses = new()
     {
+        "Ordered",
         "Processing",
         "Shipped",
         "Completed",

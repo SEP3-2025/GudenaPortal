@@ -10,4 +10,5 @@ public interface IBasketRepository
     Task<Basket> UpdateProductAmountAsync(string userId, int productId, int amount);
     Task<Basket> RemoveProductFromBasketAsync(string userId, int productId);
     Task DestroyBasketAsync(string userId);
+    Task<List<AccountDetails>> GetBusinessDetailsForBasketAsync(string userId);
 }
