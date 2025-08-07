@@ -10,6 +10,7 @@ namespace Gudena.Api.Controllers;
 [ApiController]
 [Route("api/[controller]")]
 [Authorize(Policy = "BusinessOnly")]
+
 public class BusinessWarrantyClaimController : ControllerBase
 {
     private readonly IBusinessWarrantyClaimService _service;

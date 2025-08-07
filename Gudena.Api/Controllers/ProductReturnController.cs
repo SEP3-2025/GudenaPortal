@@ -4,6 +4,7 @@ using Gudena.Api.DTOs;
 using Gudena.Api.Exceptions;
 using Gudena.Data;
 using Gudena.Data.Entities;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
@@ -12,6 +13,8 @@ namespace Gudena.Api.Controllers;
 
 [ApiController]
 [Route("api/[controller]")]
+[Authorize(Policy = "BuyerOnly")]
+
 public class ProductReturnController : ControllerBase
 {
     private readonly IProductReturnService _productReturnService;

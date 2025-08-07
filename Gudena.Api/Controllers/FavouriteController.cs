@@ -3,6 +3,7 @@ using Gudena.Api.Services;
 using Gudena.Api.DTOs;
 using Gudena.Data;
 using Gudena.Data.Entities;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
@@ -11,6 +12,8 @@ namespace Gudena.Api.Controllers;
 
 [ApiController]
 [Route("api/[controller]")]
+[Authorize(Policy = "BuyerOnly")]
+
 public class FavouriteController : ControllerBase
 {
     private readonly IFavouriteService _favouriteService;

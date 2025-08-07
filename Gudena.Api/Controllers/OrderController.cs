@@ -14,6 +14,8 @@ namespace Gudena.Api.Controllers;
 
 [ApiController]
 [Route("api/[controller]")]
+[Authorize(Policy = "BuyerOnly")]
+
 public class OrderController : ControllerBase
 {
     private readonly IOrderService _orderService;

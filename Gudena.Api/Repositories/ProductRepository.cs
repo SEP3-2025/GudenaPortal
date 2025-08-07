@@ -15,18 +15,23 @@ public class ProductRepository : IProductRepository
 
     public async Task<IEnumerable<Product>> GetAllAsync()
     {
-        return await _context.Products.ToListAsync();
+        return await _context.Products
+            .Include(p => p.Media)
+            .ToListAsync();
     }
 
     public async Task<Product?> GetByIdAsync(int id)
     {
-        return await _context.Products.FindAsync(id);
+        return await _context.Products
+            .Include(p => p.Media)
+            .FirstOrDefaultAsync(p => p.Id == id);
     }
     public async Task<IEnumerable<Product>> SearchByNameAsync(string name)
     {
         var search = name.ToLower();
 
         return await _context.Products
+            .Include(p => p.Media)
             .Where(p => EF.Functions.ILike(p.Name, $"%{search}%"))
             .ToListAsync();
     }
