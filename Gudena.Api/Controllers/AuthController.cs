@@ -1,125 +1,48 @@
 using Gudena.Api.DTOs;
-using Gudena.Data;
-using Gudena.Data.Entities;
-using Microsoft.AspNetCore.Identity;
+using Gudena.Api.Services.Interfaces;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.IdentityModel.Tokens;
-using System.IdentityModel.Tokens.Jwt;
-using System.Security.Claims;
-using System.Text;
 
-namespace Gudena.Api.Controllers;
-
-[ApiController]
-[Route("api/[controller]")]
-public class AuthController : ControllerBase
+namespace Gudena.Api.Controllers
 {
-    private readonly UserManager<ApplicationUser> _userManager;
-    private readonly IConfiguration _config;
-    private readonly AppDbContext _context;
-
-    public AuthController(UserManager<ApplicationUser> userManager, IConfiguration config, AppDbContext context)
+    [ApiController]
+    [Route("api/[controller]")]
+    public class AuthController : ControllerBase
     {
-        _userManager = userManager;
-        _config = config;
-        _context = context;
-    }
+        private readonly IAuthService _authService;
 
-    [HttpPost("register/buyer")]
-    public async Task<IActionResult> Register(BuyerRegisterDto dto)
-    {
-        var user = new ApplicationUser
+        public AuthController(IAuthService authService)
         {
-            UserName = dto.Email,
-            Email = dto.Email,
-            UserType = "Buyer"
-        };
+            _authService = authService;
+        }
 
-        var result = await _userManager.CreateAsync(user, dto.Password);
-
-        if (!result.Succeeded)
-            return BadRequest(result.Errors);
-
-        var accountDetails = new AccountDetails
+        [HttpPost("register/buyer")]
+        public async Task<IActionResult> RegisterBuyer(BuyerRegisterDto dto)
         {
-            FirstName = dto.FirstName,
-            LastName = dto.LastName,
-            City = dto.City,
-            Street = dto.Street,
-            PostalCode = dto.PostalCode,
-            Country = dto.Country,
-            PhoneNumber = dto.PhoneNumber,
-            ApplicationUserId = user.Id
-        };
+            var result = await _authService.RegisterBuyerAsync(dto);
+            if (!result.Contains("successful"))
+                return BadRequest(result);
 
-        _context.AccountDetails.Add(accountDetails);
-        await _context.SaveChangesAsync();
+            return Ok(result);
+        }
 
-        return Ok("Registration successful.");
-    }
-    
-    [HttpPost("register/business")]
-    public async Task<IActionResult> RegisterBusiness(BusinessRegisterDto dto)
-    {
-        var user = new ApplicationUser
+        [HttpPost("register/business")]
+        public async Task<IActionResult> RegisterBusiness(BusinessRegisterDto dto)
         {
-            UserName = dto.Email,
-            Email = dto.Email,
-            UserType = "Business"
-        };
+            var result = await _authService.RegisterBusinessAsync(dto);
+            if (!result.Contains("successful"))
+                return BadRequest(result);
 
-        var result = await _userManager.CreateAsync(user, dto.Password);
+            return Ok(result);
+        }
 
-        if (!result.Succeeded)
-            return BadRequest(result.Errors);
-
-        var accountDetails = new AccountDetails
+        [HttpPost("login")]
+        public async Task<IActionResult> Login(LoginDto dto)
         {
-            FirstName = dto.FirstName,
-            LastName = dto.LastName,
-            City = dto.City,
-            Street = dto.Street,
-            PostalCode = dto.PostalCode,
-            Country = dto.Country,
-            PhoneNumber = dto.PhoneNumber,
-            CompanyName = dto.CompanyName,
-            ApplicationUserId = user.Id
-        };
+            var token = await _authService.LoginAsync(dto);
+            if (token == null)
+                return Unauthorized("Invalid credentials.");
 
-        _context.AccountDetails.Add(accountDetails);
-        await _context.SaveChangesAsync();
-
-        return Ok("Business registration successful.");
-    }
-
-    [HttpPost("login")]
-    public async Task<IActionResult> Login(LoginDto dto)
-    {
-        var user = await _userManager.FindByEmailAsync(dto.Email);
-        if (user == null || !await _userManager.CheckPasswordAsync(user, dto.Password))
-            return Unauthorized("Invalid credentials.");
-
-        var claims = new[]
-        {
-            new Claim(JwtRegisteredClaimNames.Sub, user.Email),
-            new Claim("uid", user.Id),
-            new Claim("UserType", user.UserType)
-        };
-
-        var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_config["Jwt:Key"]));
-        var creds = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
-
-        var token = new JwtSecurityToken(
-            issuer: _config["Jwt:Issuer"],
-            audience: _config["Jwt:Audience"],
-            claims: claims,
-            expires: DateTime.UtcNow.AddMinutes(double.Parse(_config["Jwt:DurationInMinutes"])),
-            signingCredentials: creds
-        );
-
-        return Ok(new
-        {
-            token = new JwtSecurityTokenHandler().WriteToken(token)
-        });
+            return Ok(new { token });
+        }
     }
 }

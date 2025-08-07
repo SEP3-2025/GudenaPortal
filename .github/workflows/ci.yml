@@ -5,8 +5,8 @@ on:
   workflow_dispatch:
 
 jobs:
-  build_only:
-    name: Build GudenaPortal
+  build_and_test:
+    name: Build and Test GudenaPortal
     runs-on: ubuntu-latest
 
     steps:
@@ -24,6 +24,5 @@ jobs:
       - name: Build solution
         run: dotnet build GudenaPortal.sln --no-restore --configuration Release
 
-      # Placeholder for future test execution
-      # - name: Run tests
-      #   run: dotnet test Tests/Tests.csproj --no-build --configuration Release --verbosity normal
+      - name: Run tests
+        run: dotnet test GudenaPortal.sln --no-build --configuration Release --verbosity normal
