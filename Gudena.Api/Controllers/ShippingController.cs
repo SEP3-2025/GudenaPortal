@@ -41,6 +41,7 @@ namespace Gudena.Api.Controllers
         }
 
         [HttpGet]
+        [Authorize(Policy = "BuyerOnly")]
         public async Task<ActionResult<IEnumerable<Shipping>>> GetUserShippings()
         {
             var userId = User.FindFirst("uid")?.Value;
@@ -49,6 +50,7 @@ namespace Gudena.Api.Controllers
         }
         
         [HttpPost]
+        [Authorize(Policy = "BuyerOnly")]
         public async Task<ActionResult<Shipping>> CreateShipping([FromBody] CreateShippingDto dto)
         {
             var userId = User.FindFirst("uid")?.Value;

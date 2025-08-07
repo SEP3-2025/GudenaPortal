@@ -11,6 +11,8 @@ namespace Gudena.Api.Controllers
 {
     [ApiController]
     [Route("api/[controller]")]
+    [Authorize(Policy = "BuyerOnly")]
+    
     public class PaymentController : ControllerBase
     {
         private readonly IPaymentService _paymentService;

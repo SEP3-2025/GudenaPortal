@@ -79,5 +79,11 @@ public class BusinessOrderRepository : IBusinessOrderRepository
         await _context.SaveChangesAsync();
         return true;
     }
-    
+
+    public async Task<Order> GetOrderAsync(string businessId, int orderId)
+    {
+        return await _context.Orders.Where(o =>
+            o.Id == orderId && o.OrderItems.Any(oi => oi.Product.OwnerId == businessId))
+            .FirstOrDefaultAsync();
+    }
 }
