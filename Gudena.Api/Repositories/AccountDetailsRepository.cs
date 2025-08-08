@@ -19,7 +19,7 @@ namespace Gudena.Data.Repositories
                 .FirstOrDefaultAsync(a => a.ApplicationUserId == userId);
         }
 
-        public async Task UpdateAddressAsync(string userId, UpdateAddressDto dto)
+        public async Task UpdateAddressAsync(string userId, AddressDto dto)
         {
             var account = await _context.AccountDetails
                 .FirstOrDefaultAsync(a => a.ApplicationUserId == userId);

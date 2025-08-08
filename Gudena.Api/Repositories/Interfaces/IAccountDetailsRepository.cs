@@ -5,6 +5,6 @@ namespace Gudena.Data.Repositories
     public interface IAccountDetailsRepository
     {
         Task<AccountDetails?> GetByUserIdAsync(string userId);
-        Task UpdateAddressAsync(string userId, UpdateAddressDto dto);
+        Task UpdateAddressAsync(string userId, AddressDto dto);
     }
 }

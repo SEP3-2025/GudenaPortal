@@ -19,7 +19,7 @@ namespace Gudena.Api.Controllers
         }
 
         [HttpPut("update-address")]
-        public async Task<IActionResult> UpdateAddress([FromBody] UpdateAddressDto dto)
+        public async Task<IActionResult> UpdateAddress([FromBody] AddressDto dto)
         {
             var userId = User.FindFirstValue("uid") 
                          ?? User.FindFirstValue(ClaimTypes.NameIdentifier);
@@ -36,6 +36,20 @@ namespace Gudena.Api.Controllers
             {
                 return BadRequest(new { error = ex.Message });
             }
+        }
+        
+        [HttpGet("address")]
+        public async Task<ActionResult<AddressDto>> GetMyAddress()
+        {
+            var userId = User.FindFirstValue("uid") 
+                         ?? User.FindFirstValue(ClaimTypes.NameIdentifier);
+            if (string.IsNullOrEmpty(userId))
+                return Unauthorized();
+
+            var dto = await _service.GetAddressAsync(userId);
+            if (dto == null) return NotFound();
+
+            return Ok(dto);
         }
     }
 }
