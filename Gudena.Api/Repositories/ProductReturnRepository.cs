@@ -34,7 +34,9 @@ public class ProductReturnRepository : IProductReturnRepository
     public async Task<ProductReturn> CreateAsync(ProductReturnDto productReturnDto, string userId)
     {
         OrderItem orderItem = await _context.OrderItems
-            .Include(orderItem => orderItem.ProductReturn).Include(orderItem => orderItem.Order)
+            .Include(orderItem => orderItem.ProductReturn)
+            .Include(orderItem => orderItem.Order)
+            .Include(orderItem => orderItem.Product )
             .FirstOrDefaultAsync(oi => oi.Id == productReturnDto.OrderItemId);
         if (orderItem == null)
         {
