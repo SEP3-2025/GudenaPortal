@@ -32,7 +32,11 @@ public class WarrantyClaimRepository : IWarrantyClaimRepository
 
     public async Task<WarrantyClaim> CreateAsync(WarrantyClaimDto warrantyClaimDto, string userId)
     {
-        OrderItem orderItem = await _context.OrderItems.Include(orderItem => orderItem.Order).FirstOrDefaultAsync(oi => oi.Id == warrantyClaimDto.OrderItemId);
+        OrderItem orderItem = await _context.OrderItems
+            .Include(orderItem => orderItem.Order)
+            .Include(orderItem => orderItem.Product)
+            .Include(orderItem => orderItem.WarrantyClaim)
+            .FirstOrDefaultAsync(oi => oi.Id == warrantyClaimDto.OrderItemId);
         if (orderItem == null)
         {
             Console.WriteLine($"OrderItem {warrantyClaimDto.OrderItemId} not found");
