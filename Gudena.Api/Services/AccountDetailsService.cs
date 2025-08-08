@@ -26,7 +26,7 @@ namespace Gudena.Services
             "Spain","Sweden"
         };
 
-        public async Task UpdateAddressAsync(string userId, UpdateAddressDto dto)
+        public async Task UpdateAddressAsync(string userId, AddressDto dto)
         {
             if (dto == null)
                 throw new ArgumentNullException(nameof(dto));
@@ -36,6 +36,20 @@ namespace Gudena.Services
                 throw new InvalidOperationException($"Country '{dto.Country}' is not in the EU.");
 
             await _repository.UpdateAddressAsync(userId, dto);
+        }
+        
+        public async Task<AddressDto?> GetAddressAsync(string userId)
+        {
+            var acc = await _repository.GetByUserIdAsync(userId);
+            if (acc == null) return null;
+
+            return new AddressDto
+            {
+                Street = acc.Street,
+                PostalCode = acc.PostalCode,
+                City = acc.City,
+                Country = acc.Country
+            };
         }
     }
 }

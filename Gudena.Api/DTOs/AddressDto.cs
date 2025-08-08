@@ -1,6 +1,6 @@
 namespace Gudena.Api.DTOs
 {
-    public class UpdateAddressDto
+    public class AddressDto
     {
         public string? Street { get; set; }
         public string? PostalCode { get; set; }
