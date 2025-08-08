@@ -4,10 +4,6 @@ using Gudena.Data.Entities;
 using Microsoft.AspNetCore.Mvc;
 using Gudena.Services;
 using Microsoft.AspNetCore.Authorization;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 
 namespace Gudena.Api.Controllers
 {
@@ -154,15 +150,13 @@ namespace Gudena.Api.Controllers
         {
             var userId = User.FindFirst("uid")?.Value;
             if (userId == null) return Unauthorized();
-
-            // Buyer (destination)
+            
             var buyer = await _accountDetailsService.GetAccountDetailsForUserAsync(userId);
             if (buyer == null) return BadRequest("Account details not found.");
 
             if (string.IsNullOrWhiteSpace(buyer.Country) || string.IsNullOrWhiteSpace(buyer.PostalCode))
                 return BadRequest("Buyer address is incomplete (country/postal code required).");
-
-            // Sellers (origins) with items in the buyer's basket
+            
             var ownerInformation = await _basketService.GetBusinessDetailsForBasketAsync(userId);
             if (ownerInformation == null || !ownerInformation.Any())
                 return Ok(Array.Empty<ShippingCostPreviewDto>());
@@ -227,7 +221,6 @@ namespace Gudena.Api.Controllers
 
             return Ok(results);
         }
-
         
         private static async Task<decimal> GetShippingCostAsync(
             string originCountry,
