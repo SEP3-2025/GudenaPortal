@@ -16,7 +16,6 @@ public class ProductRepository : IProductRepository
     public async Task<IEnumerable<Product>> GetAllAsync()
     {
         return await _context.Products
-            .Include(p => p.Media)
             .ToListAsync();
     }
 
