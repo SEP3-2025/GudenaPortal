@@ -84,6 +84,8 @@ public class BusinessOrderRepository : IBusinessOrderRepository
     {
         return await _context.Orders.Where(o =>
             o.Id == orderId && o.OrderItems.Any(oi => oi.Product.OwnerId == businessId))
+            .Include(o => o.OrderItems)
+            .ThenInclude(oi => oi.Product)
             .FirstOrDefaultAsync();
     }
 }
