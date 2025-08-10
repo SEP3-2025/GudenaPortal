@@ -74,6 +74,7 @@ public class OrderRepository : IOrderRepository
             if (shipping != null)
             {
                 orderItemShippings.Add(shipping);
+                shippings.Add(shipping);
             }
             
             OrderItem orderItem = new OrderItem()
@@ -226,6 +227,21 @@ public class OrderRepository : IOrderRepository
                 Amount = orderItem.PricePerUnit * orderItem.Quantity,
                 PaymentMethod = "Refund",
                 PayingUserId = orderItem.Product.OwnerId,
+                TransactionDate = DateTime.Now,
+                PaymentStatus = "Completed",
+                TransactionId = $"GudenaPay-{Guid.NewGuid()}"
+            };
+            order.Payments.Add(refund);
+        }
+        foreach (Shipping shipping in order.Shippings)
+        {
+            shipping.ShippingStatus = "Cancelled";
+            Payment refund = new Payment() // Issue a refund
+            {
+                OrderId = order.Id,
+                Amount = shipping.ShippingCost,
+                PaymentMethod = "Refund",
+                PayingUserId = shipping.BusinessUserId,
                 TransactionDate = DateTime.Now,
                 PaymentStatus = "Completed",
                 TransactionId = $"GudenaPay-{Guid.NewGuid()}"
