@@ -86,6 +86,8 @@ public class BusinessOrderRepository : IBusinessOrderRepository
             o.Id == orderId && o.OrderItems.Any(oi => oi.Product.OwnerId == businessId))
             .Include(o => o.OrderItems)
             .ThenInclude(oi => oi.Product)
+            .Include(o => o.Payments)
+            .Include(o => o.Shippings)
             .FirstOrDefaultAsync();
     }
 }
