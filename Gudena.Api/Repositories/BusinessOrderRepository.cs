@@ -71,6 +71,8 @@ public class BusinessOrderRepository : IBusinessOrderRepository
         // Update order status based on current orderItem status
         if (order.OrderItems.All(oi => oi.Status == status))
             order.Status = status;
+        else if (order.OrderItems.Any(oi => oi.Status == "Completed"))
+            order.Status = "PartiallyCompleted";
         else if (order.OrderItems.Any(oi => oi.Status == "Shipped"))
             order.Status = "PartiallyShipped";
         else if (order.OrderItems.Any(oi => oi.Status == "Processing"))
