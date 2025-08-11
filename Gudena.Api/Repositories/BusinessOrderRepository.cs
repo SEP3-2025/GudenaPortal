@@ -20,7 +20,7 @@ public class BusinessOrderRepository : IBusinessOrderRepository
         var orders = await _context.Orders
             .Include(o => o.OrderItems)
             .ThenInclude(oi => oi.Product)
-            .Where(o => o.OrderItems.Any(oi => oi.Product.OwnerId == businessId))
+            .Where(o => o.OrderItems.Any(oi => oi.Product.OwnerId == businessId && oi.Status != "Cancelled"))
             .Select(o => new BusinessOrderDto
             {
                 Id = o.Id,
@@ -67,6 +67,28 @@ public class BusinessOrderRepository : IBusinessOrderRepository
         foreach (OrderItem oi in orderItems)
         {
             oi.Status = status;
+            // Updating shipping, this should actually be done via an integration with an actual shipping service
+            Shipping ship = oi.Shippings.FirstOrDefault();
+            // Update only if the shipping exists and isn't a Preview, Delivered and/or Cancelled and if the status change is valid
+            if (ship != null && ship.ShippingStatus is not ("Cancelled" or "Preview" or "Delivered") &&
+                status is not ("Cancelled" or "Preview"))
+            {
+                switch (status)
+                {
+                    case "Processing":
+                        ship.ShippingStatus = "Packaging";
+                        break;
+                    case "Shipped":
+                        ship.ShippingStatus = "Shipped";
+                        break;
+                    case "Completed":
+                        ship.ShippingStatus = "Delivered";
+                        break;
+                    default:
+                        Console.WriteLine($"Attempted to update shipping {ship.Id} status from {ship.ShippingStatus} to {status}");
+                        break;
+                }
+            }
         }
         
         // Update order status based on current orderItem status

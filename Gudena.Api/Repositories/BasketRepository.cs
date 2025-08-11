@@ -58,7 +58,9 @@ public class BasketRepository : IBasketRepository
         Basket basket = await RetrieveBasketAsync(userId, -1);
         if (basket == null)
             throw new ResourceNotFoundException("Basket not found");
-        BasketItem? basketItem = basket.BasketItems.FirstOrDefault(bi => bi.ProductId == productId);
+        if (basket.BasketItems == null)
+            basket.BasketItems = new List<BasketItem>();
+        BasketItem? basketItem = basket.BasketItems.IsNullOrEmpty() ? null : basket.BasketItems.FirstOrDefault(bi => bi.ProductId == productId);
         if (basketItem == null) // Product isn't in the basket
         {
             Product? product = await _productRepository.GetByIdAsync(productId);
