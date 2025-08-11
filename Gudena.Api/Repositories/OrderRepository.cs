@@ -74,7 +74,6 @@ public class OrderRepository : IOrderRepository
             if (shipping != null)
             {
                 orderItemShippings.Add(shipping);
-                shippings.Add(shipping);
             }
             
             OrderItem orderItem = new OrderItem()
