@@ -8,6 +8,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using System.Text;
+using System.Text.Json;
 using System.Text.Json.Serialization;
 using Gudena.Api.Repositories.Interfaces;
 using Gudena.Api.Services.Interfaces;
@@ -61,7 +62,11 @@ builder.Services.AddCors(options =>
 
 // Add services
 builder.Services.AddControllers()
-    .AddJsonOptions(j => j.JsonSerializerOptions.ReferenceHandler = ReferenceHandler.Preserve);
+    .AddJsonOptions(j =>
+    {
+        j.JsonSerializerOptions.ReferenceHandler = ReferenceHandler.Preserve;
+        j.JsonSerializerOptions.MaxDepth = 64;
+    });
 builder.Services.AddScoped<IProductRepository, ProductRepository>();
 builder.Services.AddScoped<IBuyerProductService, BuyerProductService>();
 builder.Services.AddScoped<IBasketRepository, BasketRepository>();
