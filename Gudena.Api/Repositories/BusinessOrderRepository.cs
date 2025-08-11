@@ -20,7 +20,7 @@ public class BusinessOrderRepository : IBusinessOrderRepository
         var orders = await _context.Orders
             .Include(o => o.OrderItems)
             .ThenInclude(oi => oi.Product)
-            .Where(o => o.OrderItems.Any(oi => oi.Product.OwnerId == businessId))
+            .Where(o => o.OrderItems.Any(oi => oi.Product.OwnerId == businessId && oi.Status != "Cancelled"))
             .Select(o => new BusinessOrderDto
             {
                 Id = o.Id,
