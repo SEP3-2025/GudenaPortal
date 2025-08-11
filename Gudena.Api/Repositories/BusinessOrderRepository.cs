@@ -34,7 +34,8 @@ public class BusinessOrderRepository : IBusinessOrderRepository
                         ProductId = oi.Product.Id,
                         ProductName = oi.Product.Name,
                         Quantity = oi.Quantity,
-                        PricePerUnit = oi.PricePerUnit
+                        PricePerUnit = oi.PricePerUnit,
+                        Status = oi.Status
                     }).ToList()
             })
             .ToListAsync();
